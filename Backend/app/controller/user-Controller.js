@@ -20,11 +20,12 @@ userCltr.register = async (req, res) => {
         const salt = await bcryptjs.genSalt();
         const hash = await bcryptjs.hash(user.password, salt);
         user.password = hash;
+        const userCount = await User.countDocuments();
+        if (userCount === 0) {
+            user.role = 'Admin';
+        }
         await user.save();
-        // don't send password back in response
-        const userObj = user.toObject ? user.toObject() : user;
-        if (userObj.password) delete userObj.password;
-        res.status(201).json(userObj)
+        res.status(201).json(user)
 
     } catch (err) {
         console.log(err);
