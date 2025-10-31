@@ -1,3 +1,5 @@
+//this middleware is for Authorization Puropose
+
 const authorizeUser = (roles) => {
     return (req, res, next) => {
         if (roles.includes(req.role)) {
