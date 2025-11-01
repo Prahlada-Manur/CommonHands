@@ -1,12 +1,12 @@
 
 const User = require('../model/user-Schema')
-const { registerValidation, loginValidation } = require('../validations/user-Validation')
+const { registerValidation, loginValidation, userUpdateValidation, ngoRegisterationValidation } = require('../validations/user-Validation')
 const bcryptjs = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const userCltr = {};
 
-//-------------------------------------------------------------------------------------------------------------
-//----------------------------------------User Registration----------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------
+//----------------------------------------User Registration-----------------------------------------------------------
 userCltr.register = async (req, res) => {
     const body = req.body;
     try {
@@ -42,8 +42,7 @@ userCltr.register = async (req, res) => {
 
     }
 }
-//----------------------------------------User Login------------------------------------------------------
-
+//----------------------------------------User Login-------------------------------------------------------------------
 userCltr.login = async (req, res) => {
     const body = req.body;
     const { error, value } = loginValidation.validate(body, { abortEarly: false });
@@ -81,7 +80,6 @@ userCltr.login = async (req, res) => {
     }
 }
 //------------------------------------------API to show user Profile----------------------------------------------------
-
 userCltr.show = async (req, res) => {
     const userId = req.userId;
     try {
@@ -93,5 +91,55 @@ userCltr.show = async (req, res) => {
 
     }
 }
-//----------------------------------------------------------------------------------------------
+//----------------------------------------------------API to Update the userData-------------------------------------------------------------------
+userCltr.updateUser = async (req, res) => {
+    const id = req.params.id;
+    const body = req.body;
+    const { error, value } = userUpdateValidation.validate(body, { abortEarly: false });
+    if (error) {
+        return res.status(400).json({ message: "validation Error", error: error.details })
+    }
+    const updateValue = {
+        firstName: value.firstName,
+        lastName: value.lastName,
+        email: value.email
+    }
+    try {
+        const updateUser = await User.findByIdAndUpdate({ _id: id, user: req.userId }, updateValue, { new: true })
+        if (!updateUser) {
+            return res.status(404).json({ error: 'User not found or Unauthorized' })
+        }
+        res.status(200).json({ message: 'User updated successfully', user: updateUser })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server error" })
+    }
+}
+//--------------------------------------------------API to delete User----------------------------------------------------
+userCltr.delete = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const deleteUser = await User.findByIdAndDelete({_id: id, user: req.userId })
+        if (!deleteUser) {
+            return res.status(404).json({ error: "User Not Found" })
+        }
+        res.status(200).json({ message: "Successfully deleted the User", deleteUser })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal Server Error" })
+
+    }
+}
+//-----------------------------------------------API to show all the user to Admin--------------------------------------------
+userCltr.list = async (req, res) => {
+    try {
+        const listUsers = await User.find();
+        res.status(200).json({ message: "List of all the users", listUsers })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server error" })
+
+    }
+}
+
 module.exports = userCltr

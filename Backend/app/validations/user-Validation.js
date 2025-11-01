@@ -40,5 +40,16 @@ const ngoRegisterationValidation = joi.object({
         address: joi.string().optional().trim()
     }).optional()
 })
+const userUpdateValidation=joi.object({
+    firstName: joi.string().optional().trim().min(2).max(30),
+    lastName: joi.string().optional().trim().min(2).max(30),
+    email:joi.string().optional().trim().lowercase()
+})
+const ngoUpdateValidation=joi.object({
+    ngoName:joi.string().lowercase().optional().trim(),
+    regNumber:joi.string().trim().optional(),
+    contactEmail:joi.string().trim().lowercase()
+
+})
 //----------------------------------------------------------------------------------------------
-module.exports = { registerValidation, loginValidation, ngoRegisterationValidation }
+module.exports = { registerValidation, loginValidation, ngoRegisterationValidation,userUpdateValidation,ngoUpdateValidation }

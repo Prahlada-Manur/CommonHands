@@ -1,6 +1,6 @@
 const OrganizationProfile = require('../model/organizationProfile-Schema');
 const User = require('../model/user-Schema');
-const { ngoRegisterationValidation } = require('../validations/user-Validation')
+const { ngoRegisterationValidation, ngoUpdateValidation } = require('../validations/user-Validation')
 const bcryptjs = require('bcryptjs');
 const ngoCltr = {};
 //--------------------------------------------------------------------------------------------------------------
@@ -97,6 +97,57 @@ ngoCltr.ngoProfile = async (req, res) => {
     catch (err) {
         console.log(err);
         res.status(500).json({ error: 'Internal Server Error' })
+    }
+}
+//------------------------------------------API for NGO Profile Update--------------------------------------------
+ngoCltr.updateNgo = async (req, res) => {
+    const id = req.params.id;
+    const body = req.body;
+    const { error, value } = ngoUpdateValidation.validate(body, { abortEarly: false })
+    if (error) {
+        return res.status(400).json({ message: "Validation Error", error: error.details })
+    }
+    const updateValue = {
+        ngoName: value.ngoName,
+        regNumber: value.regNumber,
+        contactEmail: value.contactEmail
+    }
+    try {
+        const updateNgo = await OrganizationProfile.findByIdAndUpdate({ _id: id, user: req.userId }, updateValue, { new: true, runValidators: true })
+        if (!updateNgo) {
+            return res.status(404).json({ error: "User not Found" })
+        }
+        res.status(200).json({ message: "NGO Profile Updated Successfully", updateNgo })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server Error" })
+
+    }
+}
+//------------------------------------API for deleting NGO and User linked to it-----------------------------------------------
+ngoCltr.delete = async (req, res) => {
+    const id = req.params.id // this is the ngo _id
+    try {
+        const deleteNgoProfile = await OrganizationProfile.findByIdAndDelete({ _id: id, user: req.userId });
+        const deleteNgoUser = await User.findByIdAndDelete(req.userId)
+        if (!deleteNgoProfile || !deleteNgoUser) {
+            return res.status(404).json({ error: "User not found" })
+        }
+        res.status(200).json({ message: "Successfully deleted the user", deleteNgoProfile, deleteNgoUser })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server error" })
+
+    }
+}
+//------------------------------------API to list all the NGOS-----------------------------------------------------------------
+ngoCltr.list = async (req, res) => {
+    try {
+        const ngoList = await OrganizationProfile.find().populate('user', ['firstName', 'lastName', 'email'])
+        res.status(200).json({ message: 'List of all the Ngo with there users',ngoList })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server error" })
     }
 }
 module.exports = ngoCltr
