@@ -9,6 +9,7 @@ const authenticateUser = (req, res, next) => {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET);
         req.userId = tokenData.userId;
         req.role = tokenData.role;
+        req.ngoId = tokenData.ngoId
         next();
     } catch (err) {
         return res.status(401).json({ error: "Invalid token" });

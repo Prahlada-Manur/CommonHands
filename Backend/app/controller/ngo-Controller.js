@@ -38,13 +38,13 @@ ngoCltr.register = async (req, res) => {
 }
 //-------------------------------------API to Upload Documents---------------------------------------------------------
 ngoCltr.uploadDoc = async (req, res) => {
-    const ngoId = req.userId;
+
     console.log(req.files);
     try {
         if (!req.files || Object.keys(req.files).length === 0) {
             return res.status(400).json({ error: 'Upload the required files for Verification' })
         }
-        const ngoProfile = await OrganizationProfile.findOne({ user: ngoId });
+        const ngoProfile = await OrganizationProfile.findById(req.ngoId);
         if (!ngoProfile) {
             return res.status(404).json({ error: 'NGO Profile not Found' })
         }
@@ -74,7 +74,7 @@ ngoCltr.VerifyNgo = async (req, res) => {
         if (body.status === "Rejected") {
             updateData.reason = body.reason;
         }
-        const updateNgo = await OrganizationProfile.findByIdAndUpdate(ngoId, updateData, { new: true }).populate('user', ['firstname', 'email'])
+        const updateNgo = await OrganizationProfile.findByIdAndUpdate(ngoId, updateData, { new: true }).populate('user', ['firstName', 'email'])
         if (!updateNgo) {
             return res.status(404).json({ error: "NGO Profile not found" })
         }
@@ -88,7 +88,7 @@ ngoCltr.VerifyNgo = async (req, res) => {
 ngoCltr.ngoProfile = async (req, res) => {
     // const id=req.params.id
     try {
-        const ngoProfile = await OrganizationProfile.findOne({ user: req.userId }).populate('user', ['firstName', 'lastname', 'email'])
+        const ngoProfile = await OrganizationProfile.findById(req.ngoId).populate('user', ['firstName', 'lastName', 'email'])
         if (!ngoProfile) {
             return res.status(404).json({ error: "NGO Profile not found" })
         }
@@ -101,7 +101,7 @@ ngoCltr.ngoProfile = async (req, res) => {
 }
 //------------------------------------------API for NGO Profile Update--------------------------------------------
 ngoCltr.updateNgo = async (req, res) => {
-    const id = req.params.id;
+
     const body = req.body;
     const { error, value } = ngoUpdateValidation.validate(body, { abortEarly: false })
     if (error) {
@@ -113,7 +113,7 @@ ngoCltr.updateNgo = async (req, res) => {
         contactEmail: value.contactEmail
     }
     try {
-        const updateNgo = await OrganizationProfile.findByIdAndUpdate({ _id: id, user: req.userId }, updateValue, { new: true, runValidators: true })
+        const updateNgo = await OrganizationProfile.findOneAndUpdate({ _id: req.ngoId, user: req.userId }, updateValue, { new: true, runValidators: true })
         if (!updateNgo) {
             return res.status(404).json({ error: "User not Found" })
         }
@@ -126,9 +126,9 @@ ngoCltr.updateNgo = async (req, res) => {
 }
 //------------------------------------API for deleting NGO and User linked to it-----------------------------------------------
 ngoCltr.delete = async (req, res) => {
-    const id = req.params.id // this is the ngo _id
+    // const id = req.params.id // this is the ngo _id
     try {
-        const deleteNgoProfile = await OrganizationProfile.findByIdAndDelete({ _id: id, user: req.userId });
+        const deleteNgoProfile = await OrganizationProfile.findOneAndDelete({ _id: req.ngoId, user: req.userId });
         const deleteNgoUser = await User.findByIdAndDelete(req.userId)
         if (!deleteNgoProfile || !deleteNgoUser) {
             return res.status(404).json({ error: "User not found" })
@@ -144,10 +144,28 @@ ngoCltr.delete = async (req, res) => {
 ngoCltr.list = async (req, res) => {
     try {
         const ngoList = await OrganizationProfile.find().populate('user', ['firstName', 'lastName', 'email'])
-        res.status(200).json({ message: 'List of all the Ngo with there users',ngoList })
+        res.status(200).json({ message: 'List of all the Ngo with there users', ngoList })
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: "Internal server error" })
     }
 }
+ngoCltr.deleteByAdmin = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const ngoToDelete = await OrganizationProfile.findByIdAndDelete(id);
+        if (!ngoToDelete) {
+            return res.status(404).json({ error: 'NGO not found' });
+        }
+        await User.findByIdAndDelete(ngoToDelete.user);
+        res.status(200).json({
+            message: 'NGO and linked user deleted successfully by Admin',
+            deletedNgo: ngoToDelete
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 module.exports = ngoCltr

@@ -1,4 +1,5 @@
 
+const OrganizationProfile = require('../model/organizationProfile-Schema');
 const User = require('../model/user-Schema')
 const { registerValidation, loginValidation, userUpdateValidation, ngoRegisterationValidation } = require('../validations/user-Validation')
 const bcryptjs = require('bcryptjs')
@@ -69,8 +70,14 @@ userCltr.login = async (req, res) => {
         user.loginCount += 1;
         await user.save();
         console.log(`User ${user.email} logged in successfully`);
-
-        const tokenData = { userId: user._id, role: user.role };
+        let ngoId = null;
+        if (user.role === 'NGO') {
+            const ngoProfile = await OrganizationProfile.findOne({ user: user._id })
+            if (ngoProfile) {
+                ngoId = ngoProfile._id
+            }
+        }
+        const tokenData = { userId: user._id, role: user.role, ngoId };
         const token = jwt.sign(tokenData, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.status(200).json({ token: token })
     } catch (err) {
@@ -93,7 +100,7 @@ userCltr.show = async (req, res) => {
 }
 //----------------------------------------------------API to Update the userData-------------------------------------------------------------------
 userCltr.updateUser = async (req, res) => {
-    const id = req.params.id;
+    // const id = req.params.id;
     const body = req.body;
     const { error, value } = userUpdateValidation.validate(body, { abortEarly: false });
     if (error) {
@@ -105,7 +112,7 @@ userCltr.updateUser = async (req, res) => {
         email: value.email
     }
     try {
-        const updateUser = await User.findByIdAndUpdate({ _id: id, user: req.userId }, updateValue, { new: true })
+        const updateUser = await User.findByIdAndUpdate(req.userId , updateValue, { new: true })
         if (!updateUser) {
             return res.status(404).json({ error: 'User not found or Unauthorized' })
         }
@@ -119,7 +126,7 @@ userCltr.updateUser = async (req, res) => {
 userCltr.delete = async (req, res) => {
     const id = req.params.id;
     try {
-        const deleteUser = await User.findByIdAndDelete({_id: id, user: req.userId })
+        const deleteUser = await User.findByIdAndDelete({ _id: id })
         if (!deleteUser) {
             return res.status(404).json({ error: "User Not Found" })
         }

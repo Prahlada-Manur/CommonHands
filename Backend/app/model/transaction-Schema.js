@@ -7,7 +7,7 @@ const transactionSchema = new mongoose.Schema({
     },
     //----------------------------------------------------------------------------------------------
     donorDetails: {
-        donorNamSe: {
+        donorName: {
             type: String,
             required: true
         },
