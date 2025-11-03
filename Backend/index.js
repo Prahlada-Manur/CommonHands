@@ -14,6 +14,7 @@ const authorizeUser = require('./app/middleware/authorizeUser')
 const upload = require('./app/middleware/uploadCloudinary');
 const ngoCltr = require('./app/controller/ngo-Controller');
 const userCltr = require('./app/controller/user-Controller')
+const taskCltr = require('./app/controller/task-Controller')
 
 //----------------------------------------------------------------------------------------------------------
 //----------------------------------------API Endpoints for user---------------------------------------------
@@ -30,10 +31,15 @@ app.post('/api/ngo/upload-documents', authenticateUser, authorizeUser(["NGO"]), 
 app.put('/api/ngo/verify/:id', authenticateUser, authorizeUser(['Admin']), ngoCltr.VerifyNgo);
 app.get('/api/ngo/profile/', authenticateUser, authorizeUser(['NGO', "Admin"]), ngoCltr.ngoProfile);
 app.put('/api/ngo/update/', authenticateUser, authorizeUser(['NGO']), ngoCltr.updateNgo)
-app.delete('/api/ngo/delete/', authenticateUser, authorizeUser(['NGO']), ngoCltr.delete)
+app.delete('/api/ngo/delete', authenticateUser, authorizeUser(['NGO']), ngoCltr.delete)
 app.get('/api/ngo/list', authenticateUser, authorizeUser(['Admin']), ngoCltr.list)
 app.delete('/api/ngo/admin/:id', authenticateUser, authorizeUser(['Admin']), ngoCltr.deleteByAdmin)
 //-------------------------------------------------------------------------------------------------
+//--------------------------------------API Endpoints for Task-------------------------------------
+app.post('/api/task', authenticateUser, authorizeUser(['NGO']), taskCltr.createTask)
+app.get('/api/ngo/tasks', authenticateUser, authorizeUser(['NGO']), taskCltr.getTaskByNgo)
+app.get('/api/tasks', taskCltr.getAllTask)
+//------------------------------------------------------------------------------------------------
 app.listen(port, () => {
 	console.log(`Server listening on port ${port}`)
 })

@@ -5,6 +5,11 @@ const taskSchema = new mongoose.Schema({
         ref: 'OrganizationProfile',
         required: true
     },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     title: {
         type: String,
         required: true
@@ -29,7 +34,7 @@ const taskSchema = new mongoose.Schema({
     },
     taskType: {
         type: String,
-        enum: ['Volunteer', 'funding'],
+        enum: ['Volunteer', 'funding','donation'],
         required: true
     },
     requiredSkills: {
@@ -37,6 +42,7 @@ const taskSchema = new mongoose.Schema({
     },
     requiredHours: {
         type: Number,
+        default: 0
     },
     fundingGoal: {
         type: Number,
@@ -69,5 +75,5 @@ const taskSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 //----------------------------------------------------------------------------------------------
-const Task=mongoose.model('Task',taskSchema)
-module.exports=Task
+const Task = mongoose.model('Task', taskSchema)
+module.exports = Task
