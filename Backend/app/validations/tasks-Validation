@@ -23,8 +23,8 @@ const createTaskValidation = joi.object({
 })
 //-------------------------------------------Update Validation--------------------------------------
 const updateTaskValidation = joi.object({
-    title: joi.string().lowercase().min(3).max(48).required(),
-    description: joi.string().lowercase().min(3).max(150).required(),
+    title: joi.string().lowercase().min(3).max(48).optional(),
+    description: joi.string().lowercase().min(3).max(150).optional(),
     location: locationValidation.optional(),
     requiredSkills: joi.string().allow('', null).optional(),
     requiredHours: joi.number().integer().min(0).optional(),

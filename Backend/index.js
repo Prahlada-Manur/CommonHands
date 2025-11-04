@@ -39,6 +39,10 @@ app.delete('/api/ngo/admin/:id', authenticateUser, authorizeUser(['Admin']), ngo
 app.post('/api/task', authenticateUser, authorizeUser(['NGO']), taskCltr.createTask)
 app.get('/api/ngo/tasks', authenticateUser, authorizeUser(['NGO']), taskCltr.getTaskByNgo)
 app.get('/api/tasks', taskCltr.getAllTask)
+app.get('/api/task/:id', taskCltr.getTaskbyId)
+app.put('/api/task/:id', authenticateUser, authorizeUser(['NGO']), taskCltr.updateTask)
+app.delete('/api/task/:id', authenticateUser, authorizeUser(["Admin", 'NGO']), taskCltr.delete)
+app.get('/api/admin/tasks', authenticateUser, authorizeUser(['Admin']), taskCltr.getAdminTasks)
 //------------------------------------------------------------------------------------------------
 app.listen(port, () => {
 	console.log(`Server listening on port ${port}`)
