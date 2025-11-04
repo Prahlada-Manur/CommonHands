@@ -22,6 +22,12 @@ taskCltr.createTask = async (req, res) => {
         }
         const type = value.taskType.toLowerCase() === 'volunteer' ? 'Volunteer' : 'funding';
         const task = new Task({ ...value, taskType: type, ngo: req.ngoId, taskStatus: 'Open', createdBy: req.userId, fundingGoal: type === 'funding' ? Number(value.fundingGoal || 0) : 0 })
+        if (req.files && req.files.tasksImages && req.files.tasksImages.length > 0) {
+            task.images = req.files.tasksImages.map((ele) => ({
+                url: ele.path,
+                public_id: ele.filename || ele.public_id
+            }))
+        }
         await task.save()
 
         res.status(201).json({ message: 'Task created successfully', task })
@@ -82,6 +88,9 @@ taskCltr.getAllTask = async (req, res) => {
 //--------------------------------API to get task by id-------------------------------------------------------------
 taskCltr.getTaskbyId = async (req, res) => {
     const id = req.params.id
+    if (!id) {
+        return res.status(400).json({ error: "Invalid id" })
+    }
     try {
         const task = await Task.findById(id).populate('ngo', ['ngoName', 'contactEmail']).populate('createdBy', ['firstName', 'lastName', 'email'])
         if (!task) {
@@ -96,6 +105,9 @@ taskCltr.getTaskbyId = async (req, res) => {
 taskCltr.updateTask = async (req, res) => {
     const id = req.params.id
     const body = req.body
+    if (!id) {
+        return res.status(400).json({ error: "Invalid id" })
+    }
     try {
         const { error, value } = updateTaskValidation.validate(body, { abortEarly: false })
         if (error) {
@@ -125,6 +137,9 @@ taskCltr.updateTask = async (req, res) => {
 //--------------------------API for deleting the tasks------------------------------------------------------
 taskCltr.delete = async (req, res) => {
     const id = req.params.id;
+    if (!id) {
+        return res.status(400).json({ error: "Invalid id" })
+    }
     try {
         const task = await Task.findById(id)
         if (!task) {

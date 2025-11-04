@@ -36,7 +36,7 @@ app.get('/api/ngo/list', authenticateUser, authorizeUser(['Admin']), ngoCltr.lis
 app.delete('/api/ngo/admin/:id', authenticateUser, authorizeUser(['Admin']), ngoCltr.deleteByAdmin)
 //-------------------------------------------------------------------------------------------------
 //--------------------------------------API Endpoints for Task-------------------------------------
-app.post('/api/task', authenticateUser, authorizeUser(['NGO']), taskCltr.createTask)
+app.post('/api/task', authenticateUser, authorizeUser(['NGO']), upload, taskCltr.createTask)
 app.get('/api/ngo/tasks', authenticateUser, authorizeUser(['NGO']), taskCltr.getTaskByNgo)
 app.get('/api/tasks', taskCltr.getAllTask)
 app.get('/api/task/:id', taskCltr.getTaskbyId)

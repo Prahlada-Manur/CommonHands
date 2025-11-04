@@ -12,22 +12,27 @@ cloudinary.config({
 //------------------------------------------------Multer Storage Configuration------------------------------------------------
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
-    params: {
-        folder: (req, file) => {
-            console.log(`uploading file for NGO with user ID ${req.userId}`);
-            return `commanhands/uploads/ngo-registrations/${req.userId}`;
-        },
-        allowed_formats: ['jpg', 'png', 'pdf', 'jpeg'],
-        public_id: (req, file) => {
-            return file.fieldname;
+    params: (req, file) => {
+        const baseFolder = `commonhands/uploads/ngo/${req.userId}`
+        let folderPath = baseFolder;
+        if (file.fieldname === 'coordinatorAadhaar' || file.fieldname === 'ngoLicense') {
+            folderPath = baseFolder
+        } else {
+            folderPath = `${baseFolder}/tasks`
+        }
+        return {
+            folder: folderPath,
+            allowed_formats: ["jgp", 'jpeg', 'png', 'pdf'],
+            public_id: `${file.fieldname}-${Date.now()}`
         }
     }
 })
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 1024 * 1024 * 5 }
+    limits: { fileSize: 1024 * 1024 * 10 }
 }).fields([
     { name: 'coordinatorAadhaar', maxCount: 1 },
-    { name: "ngoLicense", maxCount: 1 }
+    { name: "ngoLicense", maxCount: 1 },
+    { name: 'tasksImages', maxCount: 2 }
 ])
 module.exports = upload;

@@ -39,9 +39,13 @@ ngoCltr.register = async (req, res) => {
 //-------------------------------------API to Upload Documents---------------------------------------------------------
 ngoCltr.uploadDoc = async (req, res) => {
 
-    console.log(req.files);
+    console.log('fies recived', req.files);
     try {
-        if (!req.files || Object.keys(req.files).length === 0) {
+        if (
+            !req.files ||
+            !req.files.coordinatorAadhaar?.[0] ||
+            !req.files.ngoLicense?.[0]
+        ) {
             return res.status(400).json({ error: 'Upload the required files for Verification' })
         }
         const ngoProfile = await OrganizationProfile.findById(req.ngoId);
@@ -129,6 +133,9 @@ ngoCltr.delete = async (req, res) => {
     // const id = req.params.id // this is the ngo _id
     try {
         const deleteNgoProfile = await OrganizationProfile.findOneAndDelete({ _id: req.ngoId, user: req.userId });
+        if (!deleteNgoProfile) {
+            return res.status(404).json({ error: "Profile not found" })
+        }
         const deleteNgoUser = await User.findByIdAndDelete(req.userId)
         if (!deleteNgoProfile || !deleteNgoUser) {
             return res.status(404).json({ error: "User not found" })

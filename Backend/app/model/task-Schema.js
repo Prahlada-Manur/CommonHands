@@ -34,7 +34,7 @@ const taskSchema = new mongoose.Schema({
     },
     taskType: {
         type: String,
-        enum: ['Volunteer', 'funding','donation'],
+        enum: ['Volunteer', 'funding'],
         required: true
     },
     requiredSkills: {
@@ -56,6 +56,16 @@ const taskSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    images: [
+        {
+            url: {
+                type: String
+            },
+            public_id: {
+                type: String
+            }
+        }
+    ],
     isFeatured: {
         type: Boolean,
         default: false
