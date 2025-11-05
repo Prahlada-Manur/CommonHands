@@ -29,8 +29,8 @@ app.get('/api/user/list', authenticateUser, authorizeUser(['Admin']), userCltr.l
 app.post('/api/ngo/register', ngoCltr.register)
 app.post('/api/ngo/upload-documents', authenticateUser, authorizeUser(["NGO"]), upload, ngoCltr.uploadDoc);
 app.put('/api/ngo/verify/:id', authenticateUser, authorizeUser(['Admin']), ngoCltr.VerifyNgo);
-app.get('/api/ngo/profile/', authenticateUser, authorizeUser(['NGO', "Admin"]), ngoCltr.ngoProfile);
-app.put('/api/ngo/update/', authenticateUser, authorizeUser(['NGO']), ngoCltr.updateNgo)
+app.get('/api/ngo/profile', authenticateUser, authorizeUser(['NGO', "Admin"]), ngoCltr.ngoProfile);
+app.put('/api/ngo/update', authenticateUser, authorizeUser(['NGO']), ngoCltr.updateNgo)
 app.delete('/api/ngo/delete', authenticateUser, authorizeUser(['NGO']), ngoCltr.delete)
 app.get('/api/ngo/list', authenticateUser, authorizeUser(['Admin']), ngoCltr.list)
 app.delete('/api/ngo/admin/:id', authenticateUser, authorizeUser(['Admin']), ngoCltr.deleteByAdmin)
@@ -40,7 +40,7 @@ app.post('/api/task', authenticateUser, authorizeUser(['NGO']), upload, taskCltr
 app.get('/api/ngo/tasks', authenticateUser, authorizeUser(['NGO']), taskCltr.getTaskByNgo)
 app.get('/api/tasks', taskCltr.getAllTask)
 app.get('/api/task/:id', taskCltr.getTaskbyId)
-app.put('/api/task/:id', authenticateUser, authorizeUser(['NGO']), taskCltr.updateTask)
+app.put('/api/task/:id', authenticateUser, authorizeUser(['NGO']), upload, taskCltr.updateTask)
 app.delete('/api/task/:id', authenticateUser, authorizeUser(["Admin", 'NGO']), taskCltr.delete)
 app.get('/api/admin/tasks', authenticateUser, authorizeUser(['Admin']), taskCltr.getAdminTasks)
 //------------------------------------------------------------------------------------------------

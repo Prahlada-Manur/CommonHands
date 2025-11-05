@@ -2,6 +2,9 @@ const OrganizationProfile = require('../model/organizationProfile-Schema');
 const User = require('../model/user-Schema');
 const { ngoRegisterationValidation, ngoUpdateValidation } = require('../validations/user-Validation')
 const bcryptjs = require('bcryptjs');
+const Task = require('../model/task-Schema')
+const cloudinary = require('cloudinary').v2;
+const { deleteNgoFolder } = require('../utils/cloudinaryHelper')
 const ngoCltr = {};
 //--------------------------------------------------------------------------------------------------------------
 //------------------------------------------NGO Registration----------------------------------------------------
@@ -130,17 +133,42 @@ ngoCltr.updateNgo = async (req, res) => {
 }
 //------------------------------------API for deleting NGO and User linked to it-----------------------------------------------
 ngoCltr.delete = async (req, res) => {
-    // const id = req.params.id // this is the ngo _id
     try {
+        const tasks = await Task.find({ ngo: req.ngoId })
+        if (tasks.length > 0) {
+            for (let task of tasks) {
+                if (task.images && task.images.length > 0) {
+                    for (let img of task.images) {
+                        if (img.public_id) {
+                            try {
+                                await cloudinary.uploader.destroy(img.public_id)
+                                console.log(`Image Deleted ${img.public_id}`);
+
+                            } catch (cloudErr) {
+                                console.error('Image deletion failed')
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        await Task.deleteMany({ ngo: req.ngoId })
+        console.log(`Deleted the task related to ${req.ngoId}`);
+        //helper function to delete the ngo file conataining pic in cloudinary 
+        await deleteNgoFolder(req.userId)
+        //----------------------------------------------------------------------
         const deleteNgoProfile = await OrganizationProfile.findOneAndDelete({ _id: req.ngoId, user: req.userId });
         if (!deleteNgoProfile) {
             return res.status(404).json({ error: "Profile not found" })
         }
+
         const deleteNgoUser = await User.findByIdAndDelete(req.userId)
         if (!deleteNgoProfile || !deleteNgoUser) {
             return res.status(404).json({ error: "User not found" })
         }
-        res.status(200).json({ message: "Successfully deleted the user", deleteNgoProfile, deleteNgoUser })
+
+
+        res.status(200).json({ message: "Successfully deleted the user and its tasks", deleteNgoProfile, deleteNgoUser })
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: "Internal server error" })
@@ -160,15 +188,39 @@ ngoCltr.list = async (req, res) => {
 ngoCltr.deleteByAdmin = async (req, res) => {
     try {
         const id = req.params.id;
+        const tasks = await Task.find({ ngo: id })
+        if (tasks.length > 0) {
+            for (let task of tasks) {
+                if (task.images && task.images.length > 0) {
+                    for (let img of task.images) {
+                        if (img.public_id) {
+                            try {
+                                await cloudinary.uploader.destroy(img.public_id)
+                                console.log(`Image Deleted ${img.public_id}`);
+
+                            } catch (cloudErr) {
+                                console.error('Image deletion failed')
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        await Task.deleteMany({ ngo: id })
+        console.log(`Deleted task related to ngo${id}`);
+        await deleteNgoFolder(ngoToDelete.user)
         const ngoToDelete = await OrganizationProfile.findByIdAndDelete(id);
         if (!ngoToDelete) {
             return res.status(404).json({ error: 'NGO not found' });
         }
-        await User.findByIdAndDelete(ngoToDelete.user);
+
+        const deletedUser = await User.findByIdAndDelete(ngoToDelete.user);
         res.status(200).json({
-            message: 'NGO and linked user deleted successfully by Admin',
-            deletedNgo: ngoToDelete
+            message: 'NGO,tasks and linked user deleted successfully by Admin',
+            deletedNgo: ngoToDelete,
+            deletedUser: deletedUser
         });
+
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: 'Internal server error' });

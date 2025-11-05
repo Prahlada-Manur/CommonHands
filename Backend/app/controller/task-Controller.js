@@ -1,6 +1,7 @@
 const Task = require('../model/task-Schema')
 const OrganizationProfile = require('../model/organizationProfile-Schema')
-const { createTaskValidation, updateTaskValidation } = require('../validations/tasks-Validation');
+const { createTaskValidation, updateTaskValidation } = require('../validations/tasks-Validation.js');
+const cloudinary = require('cloudinary').v2;
 
 const taskCltr = {};
 
@@ -116,15 +117,35 @@ taskCltr.updateTask = async (req, res) => {
         const task = await Task.findById(id)
         if (!task) {
             return res.status(404).json({ error: "Task not found" })
-
         }
         if (String(task.ngo) !== String(req.ngoId)) {
             return res.status(401).json({ error: "You are not authorized to updated the data" })
         }
-        if (task.taskType !== 'funding' && 'fundingGoal' in value) {
+        if (task.taskType !== 'funding' && value && 'fundingGoal' in value) {
             return res.status(400).json({ error: "Cant updated funding goal for non funding tasks" })
         }
-        const updateTask = await Task.findByIdAndUpdate(id, value, { new: true, runValidators: true })
+        const newImages = req.files?.tasksImages?.map(ele => ({
+            url: ele.path,
+            public_id: ele.filename || file.public_id
+        }))
+        const replaceImages = req.body.replaceImages === 'true' || req.body.replaceImages === true;
+        if (replaceImages && task.images?.length > 0) {
+            for (const img of task.images) {
+                if (img.public_id) {
+                    try {
+                        await cloudinary.uploader.destroy(img.public_id)
+                        console.log(`Deleted old images of ${img.public_id}`);
+
+                    } catch (cloudErr) {
+                        console.error('failed to delete image', cloudErr.message)
+                    }
+                }
+            }
+        }
+        const updateData = {
+            ...value, images: replaceImages ? newImages : [...task.images, ...newImages]
+        }
+        const updateTask = await Task.findByIdAndUpdate(id, updateData, { new: true, runValidators: true })
         if (!updateTask) {
             return res.status(400).json({ error: " Can update only title,description,location,requiredSkills,requiredHours,fundingGoal,deadline" })
         }
@@ -148,12 +169,26 @@ taskCltr.delete = async (req, res) => {
         if (req.role !== 'Admin' && String(task.ngo) !== String(req.ngoId)) {
             return res.status(401).json({ error: "You are not authorized to delelte" })
         }
+        if (task.images && task.images.length > 0) {
+            for (let img of task.images) {
+                if (img.public_id) {
+                    try {
+                        await cloudinary.uploader.destroy(img.public_id);
+                        console.log('Successfully deleted the images');
+
+                    } catch (cloudErr) {
+                        console.error('Could not delete cloudinary images')
+                    }
+                }
+            }
+        }
         const deleteTask = await Task.findByIdAndDelete(id);
         res.status(200).json({ message: 'Successfully deleted a task', deleteTask })
     } catch (err) {
         res.status(500).json({ error: "Internal server error" })
     }
 }
+//-----------------------------API for admin to get all tasks
 taskCltr.getAdminTasks = async (req, res) => {
     try {
         const { type, q, page = 1, limit = 5, status } = req.query

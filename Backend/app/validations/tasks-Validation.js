@@ -30,6 +30,7 @@ const updateTaskValidation = joi.object({
     requiredHours: joi.number().integer().min(0).optional(),
     fundingGoal: joi.number().min(0).optional(),
     deadline: joi.date().iso().optional(),
+    replaceImages: joi.boolean().optional()
 
 })
 
