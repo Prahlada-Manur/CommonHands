@@ -110,16 +110,23 @@ ngoCltr.ngoProfile = async (req, res) => {
 ngoCltr.updateNgo = async (req, res) => {
 
     const body = req.body;
-    const { error, value } = ngoUpdateValidation.validate(body, { abortEarly: false })
-    if (error) {
-        return res.status(400).json({ message: "Validation Error", error: error.details })
-    }
-    const updateValue = {
-        ngoName: value.ngoName,
-        regNumber: value.regNumber,
-        contactEmail: value.contactEmail
-    }
     try {
+        const { error, value } = ngoUpdateValidation.validate(body, { abortEarly: false })
+        if (error) {
+            return res.status(400).json({ message: "Validation Error", error: error.details })
+        }
+        const updateValue = {
+            ngoName: value.ngoName,
+            regNumber: value.regNumber,
+            contactEmail: value.contactEmail
+        }
+        if (req.files?.ngoProfilePic?.length > 0) {
+            const profilePic = req.files.ngoProfilePic[0];
+            updateValue.ngoProfilePic = profilePic.path
+            console.log(`added ngoProfile Pic ${profilePic.path}`);
+
+        }
+
         const updateNgo = await OrganizationProfile.findOneAndUpdate({ _id: req.ngoId, user: req.userId }, updateValue, { new: true, runValidators: true })
         if (!updateNgo) {
             return res.status(404).json({ error: "User not Found" })
@@ -185,6 +192,7 @@ ngoCltr.list = async (req, res) => {
         res.status(500).json({ error: "Internal server error" })
     }
 }
+//---------------------------------API to Delete NGO by Admin-----------------------------------------------------------------
 ngoCltr.deleteByAdmin = async (req, res) => {
     try {
         const id = req.params.id;
@@ -208,11 +216,12 @@ ngoCltr.deleteByAdmin = async (req, res) => {
         }
         await Task.deleteMany({ ngo: id })
         console.log(`Deleted task related to ngo${id}`);
-        await deleteNgoFolder(ngoToDelete.user)
+
         const ngoToDelete = await OrganizationProfile.findByIdAndDelete(id);
         if (!ngoToDelete) {
             return res.status(404).json({ error: 'NGO not found' });
         }
+        await deleteNgoFolder(ngoToDelete.user)
 
         const deletedUser = await User.findByIdAndDelete(ngoToDelete.user);
         res.status(200).json({

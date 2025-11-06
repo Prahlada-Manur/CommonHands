@@ -112,7 +112,7 @@ userCltr.updateUser = async (req, res) => {
         email: value.email
     }
     try {
-        const updateUser = await User.findByIdAndUpdate(req.userId , updateValue, { new: true })
+        const updateUser = await User.findByIdAndUpdate(req.userId, updateValue, { new: true })
         if (!updateUser) {
             return res.status(404).json({ error: 'User not found or Unauthorized' })
         }
@@ -126,6 +126,9 @@ userCltr.updateUser = async (req, res) => {
 userCltr.delete = async (req, res) => {
     const id = req.params.id;
     try {
+        if (req.role !== 'Admin' && String(req.userId) !== String(id)) {
+            return res.status(403).json({ error: 'You are not authorized' })
+        }
         const deleteUser = await User.findByIdAndDelete({ _id: id })
         if (!deleteUser) {
             return res.status(404).json({ error: "User Not Found" })

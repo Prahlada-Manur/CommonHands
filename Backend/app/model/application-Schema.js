@@ -10,14 +10,14 @@ const applicationSchema = new mongoose.Schema({
         ref: 'Task',
         required: true
     },
-    ngoRef: {
+    ngo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'OrganizationProfile',
         required: true
     },
     completionStatus: {
         type: String,
-        enum: ['Pending', 'HoursPending', 'Rejected'],
+        enum: ['Pending', 'hoursPending', 'Approved', 'Completed', 'Rejected'],
         default: 'Pending'
     },
     hoursLogged: {

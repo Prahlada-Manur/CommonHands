@@ -15,7 +15,7 @@ const storage = new CloudinaryStorage({
     params: (req, file) => {
         const baseFolder = `commonhands/uploads/ngo/${req.userId}`
         let folderPath = baseFolder;
-        if (file.fieldname === 'coordinatorAadhaar' || file.fieldname === 'ngoLicense') {
+        if (file.fieldname === 'coordinatorAadhaar' || file.fieldname === 'ngoLicense' || file.fieldname === 'ngoProfilePic') {
             folderPath = baseFolder
         } else {
             folderPath = `${baseFolder}/tasks`
@@ -33,6 +33,7 @@ const upload = multer({
 }).fields([
     { name: 'coordinatorAadhaar', maxCount: 1 },
     { name: "ngoLicense", maxCount: 1 },
+    {name:"ngoProfilePic",maxCount:1},
     { name: 'tasksImages', maxCount: 2 }
 ])
 module.exports = upload;

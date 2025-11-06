@@ -25,6 +25,9 @@ const organizationProfileSchema = new mongoose.Schema({
     ngoLicenseUrl: {
         type: String,
     },
+    ngoProfilePic: {
+        type: String
+    },
     status: {
         type: String,
         enum: ['Pending', 'Verified', 'Rejected'],

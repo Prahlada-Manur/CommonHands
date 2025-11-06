@@ -4,7 +4,7 @@ const deleteNgoFolder = async (userId) => {
         if (!userId) {
             return "User id not provided"
         }
-        const ngoPath = `commanhands/uploads/ngo/${userId}`;
+        const ngoPath = `commonhands/uploads/ngo/${userId}`;
         await cloudinary.api.delete_resources_by_prefix(ngoPath);
         await cloudinary.api.delete_folder(ngoPath);
         console.log(`Deleted folder ${ngoPath}`);
