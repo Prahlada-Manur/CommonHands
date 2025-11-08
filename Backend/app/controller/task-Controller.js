@@ -2,6 +2,8 @@ const Task = require('../model/task-Schema')
 const OrganizationProfile = require('../model/organizationProfile-Schema')
 const { createTaskValidation, updateTaskValidation } = require('../validations/tasks-Validation.js');
 const cloudinary = require('cloudinary').v2;
+const Application = require('../model/application-Schema.js');
+const mongoose = require('mongoose');
 
 const taskCltr = {};
 
@@ -22,7 +24,11 @@ taskCltr.createTask = async (req, res) => {
             return res.status(403).json({ error: "NGO is not verified!,Please wait for admin approval" })
         }
         const type = value.taskType.toLowerCase() === 'volunteer' ? 'Volunteer' : 'funding';
-        const task = new Task({ ...value, taskType: type, ngo: req.ngoId, taskStatus: 'Open', createdBy: req.userId, fundingGoal: type === 'funding' ? Number(value.fundingGoal || 0) : 0 })
+        const task = new Task({
+            ...value, taskType: type, ngo: req.ngoId, taskStatus: 'Open',
+            createdBy: req.userId, fundingGoal: type === 'funding' ? Number(value.fundingGoal || 0) : 0,
+            volunteersNeeded:value.volunteersNeeded
+        })
         if (req.files && req.files.tasksImages && req.files.tasksImages.length > 0) {
             task.images = req.files.tasksImages.map((ele) => ({
                 url: ele.path,
@@ -143,7 +149,7 @@ taskCltr.updateTask = async (req, res) => {
             }
         }
         const updateData = {
-            ...value, images: replaceImages ? newImages : [...task.images, ...newImages]
+            ...value, images: replaceImages ? newImages : [...task.images, ...newImages],volunteersNeeded:value.volunteersNeeded
         }
         const updateTask = await Task.findByIdAndUpdate(id, updateData, { new: true, runValidators: true })
         if (!updateTask) {
@@ -214,6 +220,68 @@ taskCltr.getAdminTasks = async (req, res) => {
             currentPage: Number(page), limit: Number(limit),
             totalPage: Math.ceil(total / limit), tasks
         })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server error" })
+
+    }
+}
+//-------------------------------APi for ngo Dashboard----------------------------------------------------------
+taskCltr.overview = async (req, res) => {
+    try {
+        const { status = 'All', page = 1, limit = 5 } = req.query
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const matchNgo = { ngo: new mongoose.Types.ObjectId(req.ngoId) };
+        if (status && status !== 'All') {
+            matchNgo.taskStatus = status   //'open,completed
+        }
+        //aggregate function
+        const tasks = await Task.aggregate([
+            { $match: matchNgo },
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: Number(limit) },
+            {
+                $lookup: {
+                    from: 'applications',
+                    localField: '_id',
+                    foreignField: 'task',
+                    as: 'applications'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'applications.applicant',
+                    foreignField: '_id',
+                    as: 'applicantDetails'
+                }
+            },
+            {
+                $project: {
+                    title: 1,
+                    taskStatus: 1,
+                    deadline: 1,
+                    requiredHours: 1,
+                    createdAt: 1,
+                    applicationCount: { $size: "$applications" },
+                    applicants: {
+                        $map: {
+                            input: '$applicantDetails',
+                            as: 'a',
+                            in: {
+                                firstName: '$$a.firstName',
+                                lastName: '$$a.lastName',
+                                email: '$$a.email'
+                            }
+                        }
+                    }
+                }
+            }
+        ])
+        const totalTask = await Task.countDocuments(matchNgo);
+        res.status(200).json({ message: "NGO tasks and Applicants Details", totalTask, currentPage: Number(page), limit: Number(limit), totalPage: Math.ceil(totalTask / limit), tasks })
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: "Internal server error" })

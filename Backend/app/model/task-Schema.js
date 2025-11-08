@@ -79,6 +79,12 @@ const taskSchema = new mongoose.Schema({
         enum: ['Open', 'Completed', 'Archived'],
         default: 'Open'
     },
+    volunteersNeeded:
+    {
+        type: Number,
+        default: null
+    },
+
     aiVettingScore: {
         type: Number,
         default: null

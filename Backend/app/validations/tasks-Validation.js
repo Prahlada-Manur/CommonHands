@@ -19,7 +19,8 @@ const createTaskValidation = joi.object({
         is: joi.valid('funding', 'Funding', 'donation', 'Donation'),
         then: joi.number().required()
     }),
-    deadline: joi.date().iso().required()
+    deadline: joi.date().iso().required(),
+    volunteersNeeded:joi.number().optional()
 })
 //-------------------------------------------Update Validation--------------------------------------
 const updateTaskValidation = joi.object({
@@ -30,7 +31,8 @@ const updateTaskValidation = joi.object({
     requiredHours: joi.number().integer().min(0).optional(),
     fundingGoal: joi.number().min(0).optional(),
     deadline: joi.date().iso().optional(),
-    replaceImages: joi.boolean().optional()
+    replaceImages: joi.boolean().optional(),
+    volunteersNeeded:joi.number().optional()
 
 })
 

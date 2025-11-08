@@ -44,9 +44,17 @@ app.get('/api/task/:id', taskCltr.getTaskbyId)
 app.put('/api/task/:id', authenticateUser, authorizeUser(['NGO']), upload, taskCltr.updateTask)
 app.delete('/api/task/:id', authenticateUser, authorizeUser(["Admin", 'NGO']), taskCltr.delete)
 app.get('/api/admin/tasks', authenticateUser, authorizeUser(['Admin']), taskCltr.getAdminTasks)
+app.get('/api/tasks/dashboard', authenticateUser, authorizeUser(["NGO"]), taskCltr.overview)
 //------------------------------------------------------------------------------------------------
 //---------------------------------------API for Aplication controller-------------------------------
 app.post('/api/task/apply/:id', authenticateUser, applicationCltr.apply)
+app.get('/api/user/applications', authenticateUser, authorizeUser(['Contributor']), applicationCltr.getUserApplication)
+app.get('/api/ngo/application', authenticateUser, authorizeUser(['NGO']), applicationCltr.InfoByNgo)
+app.put('/api/application/status/:id', authenticateUser, authorizeUser(['NGO']), applicationCltr.updateStatus)
+app.post('/api/application/log/:id', authenticateUser, authorizeUser(['Contributor']), applicationCltr.logHours)
+app.put('/api/application/:id/log/:logId', authenticateUser, authorizeUser(['Contributor']), applicationCltr.updatelogHours)
+app.get('/api/ngo/logs', authenticateUser, authorizeUser(['NGO']), applicationCltr.getPendingLogs)
+//----------------------------------------------------------------------------------------------------------------
 app.listen(port, () => {
 	console.log(`Server listening on port ${port}`)
 })

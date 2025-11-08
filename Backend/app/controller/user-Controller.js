@@ -100,7 +100,6 @@ userCltr.show = async (req, res) => {
 }
 //----------------------------------------------------API to Update the userData-------------------------------------------------------------------
 userCltr.updateUser = async (req, res) => {
-    // const id = req.params.id;
     const body = req.body;
     const { error, value } = userUpdateValidation.validate(body, { abortEarly: false });
     if (error) {
