@@ -15,7 +15,8 @@ const upload = require('./app/middleware/uploadCloudinary');
 const ngoCltr = require('./app/controller/ngo-Controller');
 const userCltr = require('./app/controller/user-Controller')
 const taskCltr = require('./app/controller/task-Controller')
-const applicationCltr = require('./app/controller/application-controller')
+const applicationCltr = require('./app/controller/application-controller');
+const donationCltr = require('./app/controller/donation-controller');
 
 //----------------------------------------------------------------------------------------------------------
 //----------------------------------------API Endpoints for user---------------------------------------------
@@ -54,7 +55,13 @@ app.put('/api/application/status/:id', authenticateUser, authorizeUser(['NGO']),
 app.post('/api/application/log/:id', authenticateUser, authorizeUser(['Contributor']), applicationCltr.logHours)
 app.put('/api/application/:id/log/:logId', authenticateUser, authorizeUser(['Contributor']), applicationCltr.updatelogHours)
 app.get('/api/ngo/logs', authenticateUser, authorizeUser(['NGO']), applicationCltr.getPendingLogs)
+app.put('/api/application/:appId/log/:logId/status',authenticateUser,authorizeUser(['NGO']),applicationCltr.updateLogStatus)
+app.get('/api/application/:id',authenticateUser,authorizeUser(['Contributor','Admin']),applicationCltr.getApplicationById)
 //----------------------------------------------------------------------------------------------------------------
+//---------------------------------------API endpoints for doantion---------------------------------------
+app.post('/api/donations/:taskId',authenticateUser,donationCltr.donate)
+app.get('/api/donation/user',authenticateUser,authorizeUser(['Contributor','Admin']),donationCltr.getUserDonations)
+app.get('/api/ngo/donation',authenticateUser,authorizeUser(['NGO']),donationCltr.getNgoDonations)
 app.listen(port, () => {
 	console.log(`Server listening on port ${port}`)
 })

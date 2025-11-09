@@ -27,7 +27,7 @@ taskCltr.createTask = async (req, res) => {
         const task = new Task({
             ...value, taskType: type, ngo: req.ngoId, taskStatus: 'Open',
             createdBy: req.userId, fundingGoal: type === 'funding' ? Number(value.fundingGoal || 0) : 0,
-            volunteersNeeded:value.volunteersNeeded
+            volunteersNeeded: value.volunteersNeeded
         })
         if (req.files && req.files.tasksImages && req.files.tasksImages.length > 0) {
             task.images = req.files.tasksImages.map((ele) => ({
@@ -149,7 +149,7 @@ taskCltr.updateTask = async (req, res) => {
             }
         }
         const updateData = {
-            ...value, images: replaceImages ? newImages : [...task.images, ...newImages],volunteersNeeded:value.volunteersNeeded
+            ...value, images: replaceImages ? newImages : [...task.images, ...newImages], volunteersNeeded: value.volunteersNeeded
         }
         const updateTask = await Task.findByIdAndUpdate(id, updateData, { new: true, runValidators: true })
         if (!updateTask) {
@@ -229,19 +229,21 @@ taskCltr.getAdminTasks = async (req, res) => {
 //-------------------------------APi for ngo Dashboard----------------------------------------------------------
 taskCltr.overview = async (req, res) => {
     try {
-        const { status = 'All', page = 1, limit = 5 } = req.query
+        const { status = 'All', page = 1, limit = 5 } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
 
         const matchNgo = { ngo: new mongoose.Types.ObjectId(req.ngoId) };
         if (status && status !== 'All') {
-            matchNgo.taskStatus = status   //'open,completed
+            matchNgo.taskStatus = status; // 'Open', 'Completed', etc.
         }
-        //aggregate function
+
         const tasks = await Task.aggregate([
             { $match: matchNgo },
             { $sort: { createdAt: -1 } },
             { $skip: skip },
             { $limit: Number(limit) },
+
+            // 🔹 Link volunteer applications
             {
                 $lookup: {
                     from: 'applications',
@@ -250,6 +252,8 @@ taskCltr.overview = async (req, res) => {
                     as: 'applications'
                 }
             },
+
+            // 🔹 Link applicant user details
             {
                 $lookup: {
                     from: 'users',
@@ -258,13 +262,40 @@ taskCltr.overview = async (req, res) => {
                     as: 'applicantDetails'
                 }
             },
+
+            // 🔹 Link related donations/transactions
+            {
+                $lookup: {
+                    from: 'transactions',
+                    localField: '_id',
+                    foreignField: 'transactionDetails.task',
+                    as: 'donations'
+                }
+            },
+
+            // 🔹 Include donor user details
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'donations.donorDetails.user',
+                    foreignField: '_id',
+                    as: 'donorUserDetails'
+                }
+            },
+
+            // 🔹 Final projection
             {
                 $project: {
                     title: 1,
+                    taskType: 1,
                     taskStatus: 1,
                     deadline: 1,
                     requiredHours: 1,
+                    fundingGoal: 1,
+                    currentFund: 1,
                     createdAt: 1,
+
+                    // Volunteer details
                     applicationCount: { $size: "$applications" },
                     applicants: {
                         $map: {
@@ -276,18 +307,47 @@ taskCltr.overview = async (req, res) => {
                                 email: '$$a.email'
                             }
                         }
+                    },
+
+                    // Donation stats for funding tasks
+                    totalDonationsCount: { $size: "$donations" },
+                    totalFundsRaised: {
+                        $sum: "$donations.transactionInfo.amount"
+                    },
+                    contributors: {
+                        $map: {
+                            input: '$donations',
+                            as: 'd',
+                            in: {
+                                donorName: '$$d.donorDetails.donorName',
+                                donorEmail: '$$d.donorDetails.donorEmail',
+                                amount: '$$d.transactionInfo.amount',
+                                status: '$$d.transactionInfo.status',
+                                paymentGateway: '$$d.transactionInfo.paymentGateway',
+                                date: '$$d.createdAt'
+                            }
+                        }
                     }
                 }
             }
-        ])
+        ]);
+
         const totalTask = await Task.countDocuments(matchNgo);
-        res.status(200).json({ message: "NGO tasks and Applicants Details", totalTask, currentPage: Number(page), limit: Number(limit), totalPage: Math.ceil(totalTask / limit), tasks })
+
+        res.status(200).json({
+            message: "NGO tasks overview (with volunteer & donation details)",
+            totalTask,
+            currentPage: Number(page),
+            limit: Number(limit),
+            totalPage: Math.ceil(totalTask / limit),
+            tasks
+        });
+
     } catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Internal server error" })
-
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
 
 
 

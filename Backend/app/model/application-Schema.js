@@ -21,7 +21,7 @@ const applicationSchema = new mongoose.Schema({
         enum: [ 'hoursPending', 'Approved', 'Completed', 'Rejected'],
         default: 'Approved'
     },
-    hoursLogged: {
+    hoursLogged: { //done
         type: Number,
         default: 0
     },
@@ -29,7 +29,7 @@ const applicationSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    hoursLog: {
+    hoursLog: { //done
         type: [{
             hours: {
                 type: Number,
@@ -55,7 +55,7 @@ const applicationSchema = new mongoose.Schema({
         default: null,
         required: false
     },
-    completionDate: {
+    completionDate: { //done
         type: Date,
         default: null
     },

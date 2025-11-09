@@ -240,15 +240,10 @@ applicationCltr.getPendingLogs = async (req, res) => {
         const { status = 'Pending', page = 1, limit = 5, taskId } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
         const filter = { ngo: req.ngoId };
-
-        // ✅ Convert taskId to ObjectId safely
         if (taskId) {
-
             filter.task = new mongoose.Types.ObjectId(taskId);
-
         }
 
-        // Fetch applications of this NGO
         const applications = await Application.find(filter)
             .populate('applicant', ['firstName', 'lastName', 'email'])
             .populate('task', ['title', ' requiredHours', 'volunteersNeeded', 'deadline'])
@@ -284,5 +279,100 @@ applicationCltr.getPendingLogs = async (req, res) => {
 
     }
 }
+//---------------------------------------API to update the the log status and strore it in the model-----------------------------------------
+applicationCltr.updateLogStatus = async (req, res) => {
+    const { appId, logId } = req.params;
+    const body = req.body;
+    try {
+        if (!['Approved', 'Rejected'].includes(body.status)) {
+            return res.status(400).json({ error: 'The status must be Approved or Rejected in the same format' })
+        }
+        const application = await Application.findById(appId)
+        if (!application) {
+            return res.status(404).json({ error: 'Application not found' })
+        }
+        const log = application.hoursLog.id(logId)
+        if (!log) {
+            return res.status(404).json({ error: "Log hours not found" })
+        }
+        if (log.status !== 'Pending') {
+            return res.status(400).json({ error: "Already requested for Verification" })
+        }
+        log.status = body.status
+        if (body.status === 'Approved') {
+            application.hoursLogged += log.hours
+
+            const task = await Task.findById(application.task)
+            application.completionStatus = task && application.hoursLogged >= task.requiredHours ? "Completed" : "hoursPending"
+            if (application.completionStatus === 'Completed') {
+                application.completionDate = new Date()
+            }
+        }
+        await application.save()
+        res.status(200).json({
+            message: `log ${body.status} successfully`,
+            applicationId: appId,
+            logId,
+            updatedStatus: log.status,
+            totalHoursLogged: application.hoursLogged,
+            completionDate: application.completionDate
+        })
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: 'Internal server error' })
+
+    }
+}
+//------------------------------------------API to get application by id-----------------------------------------------------------------------
+applicationCltr.getApplicationById = async (req, res) => {
+    try {
+        const id = req.params.id;
+        if (!id) {
+            return res.status(400).json({ error: "Application ID not provided" });
+        }
+
+        const application = await Application.findById(id)
+            .populate('applicant', ['firstName', 'lastName', 'email'])
+            .populate('ngo', ['ngoName', 'contactEmail'])
+            .populate('task', ['title', 'description', 'deadline', 'location', 'taskType', 'taskStatus']);
+
+        if (!application) {
+            return res.status(404).json({ error: "Application not found" });
+        }
+
+        if (String(application.applicant._id) !== String(req.userId) && req.role !== 'Admin') {
+            return res.status(403).json({ error: "You are not authorized to view this application" });
+        }
+
+        const formattedApplication = {
+            _id: application._id,
+            completionStatus: application.completionStatus,
+            hoursLogged: application.hoursLogged,
+            hoursRequested: application.hoursRequested,
+            rejectionReason: application.rejectionReason,
+            completionDate: application.completionDate,
+            certificateUrl: application.certificateUrl,
+            createdAt: application.createdAt,
+            updatedAt: application.updatedAt,
+            applicant: application.applicant,
+            ngo: application.ngo,
+            task: application.task,
+            hoursLog: application.hoursLog.map(log => ({
+                hours: log.hours,
+                status: log.status,
+                note: log.note,
+                date: log.date
+            }))
+        };
+        res.status(200).json({
+            message: "Application details retrieved successfully",
+            application: formattedApplication
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
 
 module.exports = applicationCltr    

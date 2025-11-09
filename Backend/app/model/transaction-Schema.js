@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const transactionSchema = new mongoose.Schema({
-    ngoRef: {
+    ngo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'OrganizationProfile',
         required: true
@@ -15,7 +15,7 @@ const transactionSchema = new mongoose.Schema({
             type: String,
             required: true
         },
-        userRef: {
+        user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: false
@@ -25,49 +25,12 @@ const transactionSchema = new mongoose.Schema({
     transactionDetails: {
         transactionPurpose: {
             type: String,
-            enum: ['Donation', 'Premium'],
+            enum: ['Donation'],
             required: true
         },
-        donationType: {
-            type: String,
-            enum: ['OneTime', 'Recurring'],
-            required: function () {
-                return this.transactionDetails.transactionPurpose === 'Donation'
-            }
-        },
-        campaignRef: {
+        task: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Task',
-            required: function () {
-                return this.transactionDetails.transactionPurpose === 'Donation' && this.transactionDetails.donationType === 'OneTime'
-            }
-        },
-        gatewaySubscriptionId: {
-            type: String,
-            required: function () {
-                return this.transactionDetails.donationType === 'Donation' && this.transactionDetails.donationType === 'Recurring'
-            },
-            unique: true,
-            sparse: true
-        },
-        nextPaymentDate: {
-            type: Date,
-            required: function () {
-                return this.transactionDetails.donationType === "Donation" && this.transactionDetails.donationType === 'Recurring'
-            }
-        },
-        tier: {
-            type: String,
-            enum: ['PremiumMonthly'],
-            required: function () {
-                return this.transactionDetails.transactionPurpose === "Premium"
-            }
-        },
-        newExpiryDate: {
-            type: Date,
-            required: function () {
-                return this.transactionDetails.transactionPurpose === 'Premium'
-            }
         },
         platformFee: {
             type: Number,
