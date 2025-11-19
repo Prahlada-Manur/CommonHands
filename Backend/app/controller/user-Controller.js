@@ -108,7 +108,8 @@ userCltr.updateUser = async (req, res) => {
     const updateValue = {
         firstName: value.firstName,
         lastName: value.lastName,
-        email: value.email
+        email: value.email,
+        mobileNumber: value.mobileNumber
     }
     try {
         const updateUser = await User.findByIdAndUpdate(req.userId, updateValue, { new: true })

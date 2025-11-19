@@ -7,6 +7,9 @@ const registerValidation = joi.object({
     }),
     firstName: joi.string().required().trim().min(2).max(30),
     lastName: joi.string().required().trim().min(2).max(30),
+    mobileNumber: joi.string().pattern(/^\+?\d{7,15}$/).messages({
+        'string.pattern.base': 'mobileNumber must be digits, optionally starting with + and 7–15 digits'
+    }).optional(),
     location: joi.object({
         lat: joi.number().optional(),
         long: joi.number().optional(),
@@ -31,6 +34,9 @@ const ngoRegisterationValidation = joi.object({
     }),
     firstName: joi.string().required().trim().min(2).max(30),
     lastName: joi.string().required().trim().min(2).max(30),
+    mobileNumber: joi.string().pattern(/^\+?\d{7,15}$/).messages({
+        'string.pattern.base': 'mobileNumber must be digits, optionally starting with + and 7–15 digits'
+    }).optional(),
     ngoName: joi.string().required().trim().min(3).max(100),
     regNumber: joi.string().required().trim().min(3).max(50),
     contactEmail: joi.string().required().trim().lowercase().email(),
@@ -43,7 +49,10 @@ const ngoRegisterationValidation = joi.object({
 const userUpdateValidation=joi.object({
     firstName: joi.string().optional().trim().min(2).max(30),
     lastName: joi.string().optional().trim().min(2).max(30),
-    email:joi.string().optional().trim().lowercase()
+    email:joi.string().optional().trim().lowercase(),
+    mobileNumber: joi.string().pattern(/^\+?\d{7,15}$/).messages({
+        'string.pattern.base': 'mobileNumber must be digits, optionally starting with + and 7–15 digits'
+    }).optional()
 })
 const ngoUpdateValidation=joi.object({
     ngoName:joi.string().lowercase().optional().trim(),
