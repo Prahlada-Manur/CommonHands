@@ -7,7 +7,10 @@ import RegisterNgo from "./Pages/Register-Ngo-one";
 import UploadDoc from "./Pages/NGO/UploadDoc";
 import AdminLanding from "./Pages/Admin/AdminLanding";
 import Profile from "./Pages/User/Profile";
-
+import RegisterNgoTwo from "./Pages/register-Ngo-two";
+import NgoLanding from "./Pages/NGO/NgoLanding";
+import Tasks from "./Pages/User/Tasks";
+import NgoStatus from "./Pages/NGO/NgoStatus";
 export default function App() {
   return (
     <div className="min-h-screen bg-yellow-50 text-black">
@@ -23,6 +26,10 @@ export default function App() {
           <Route path="/uploadDoc" element={<UploadDoc />} />
           <Route path="/admin" element={<AdminLanding />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/registerNgostep2" element={<RegisterNgoTwo />} />
+          <Route path="/ngoprofile" element={<NgoLanding />} />
+          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/ngo/status" element={<NgoStatus />} />
         </Routes>
       </main>
     </div>

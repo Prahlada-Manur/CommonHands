@@ -3,6 +3,7 @@ import {
   SET_NGO_PROFILE,
   LOGIN,
   LOGOUT,
+  SET_NGO_STEP1
 } from "../components/actions";
 const userReducer = (state, action) => {
   switch (action.type) {
@@ -15,13 +16,17 @@ const userReducer = (state, action) => {
         isLoggedIn: true,
         user: action.payload,
         serverErr: "",
+        isLoading: false,
       };
     }
     case LOGOUT: {
       return { ...state, isLoggedIn: false, user: null, ngoProfile: null };
     }
     case SET_NGO_PROFILE: {
-      return { ...state, ngoProfile: action.payload };
+      return { ...state, ngoProfile: action.payload, isLoading: false };
+    }
+    case SET_NGO_STEP1: {
+      return { ...state, ngoStep1: action.payload };
     }
     default: {
       return { ...state };

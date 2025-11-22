@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "../assets/hands.png";
+import logo from "../assets/newlogo.png";
 import userContext from "../Context/userContext";
 import { useContext } from "react";
 import {
@@ -24,14 +24,17 @@ export default function NavBar() {
           className="h-18 w-18  object-contain px-4"
         />
         <h1 className="md:text-2xl font-extrabold font-serif tracking-wide ">
-          <Link to="/"> CommonHands</Link>
+          <Link to="/">
+            {" "}
+            CommonHands <p className="text-sm">The bridge from intent to action</p>
+          </Link>
         </h1>
       </div>
 
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuLink
-            className="font-medium md:text-lg underline hover:text-black transition"
+            className="font-medium md:text-lg  hover:text-black transition"
             asChild
           >
             <Link to="/">Home</Link>
@@ -42,25 +45,16 @@ export default function NavBar() {
           <>
             <NavigationMenuList>
               <NavigationMenuLink
-                className="font-medium md:text-lg underline hover:text-black transition"
+                className="font-medium md:text-lg  hover:text-black transition"
                 asChild
               >
                 <Link to="/login">Login</Link>
               </NavigationMenuLink>
               <NavigationMenuLink
-                className="font-medium md:text-lg underline hover:text-black transition"
+                className="font-medium md:text-lg  hover:text-black transition"
                 asChild
               >
                 <Link to="/register">Register</Link>
-              </NavigationMenuLink>
-            </NavigationMenuList>
-
-            <NavigationMenuList>
-              <NavigationMenuLink
-                className="font-medium md:text-lg underline hover:text-black transition"
-                asChild
-              >
-                <Link to="/registerNgo">Register NGO</Link>
               </NavigationMenuLink>
             </NavigationMenuList>
           </>
@@ -68,7 +62,7 @@ export default function NavBar() {
           <>
             <NavigationMenuList>
               <NavigationMenuLink
-                className="font-medium md:text-lg underline hover:text-black transition"
+                className="font-medium md:text-lg  hover:text-black transition"
                 asChild
               >
                 <Link to="/login">
