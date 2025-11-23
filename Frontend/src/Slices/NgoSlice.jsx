@@ -10,9 +10,9 @@ export const fetchNgoProfile = createAsyncThunk(
         headers: { Authorization: localStorage.getItem("token") },
       });
       console.log(response.data);
-      return response.data;
+      return response?.data;
     } catch (err) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(err?.response?.data);
     }
   }
 );
@@ -20,7 +20,7 @@ export const fetchNgoProfile = createAsyncThunk(
 const ngoSlice = createSlice({
   name: "ngo",
   initialState: {
-    data: [],
+    data: null,
     errors: null,
     loading: null,
   },

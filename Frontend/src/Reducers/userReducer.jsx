@@ -23,7 +23,7 @@ const userReducer = (state, action) => {
       return { ...state, isLoggedIn: false, user: null, ngoProfile: null };
     }
     case SET_NGO_PROFILE: {
-      return { ...state, ngoProfile: action.payload, isLoading: false };
+      return { ...state, ngoProfile: action.payload, isLoading: false};
     }
     case SET_NGO_STEP1: {
       return { ...state, ngoStep1: action.payload };

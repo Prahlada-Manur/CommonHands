@@ -95,7 +95,7 @@ ngoCltr.VerifyNgo = async (req, res) => {
 ngoCltr.ngoProfile = async (req, res) => {
     // const id=req.params.id
     try {
-        const ngoProfile = await OrganizationProfile.findById(req.ngoId).populate('user', ['firstName', 'lastName', 'email'])
+        const ngoProfile = await OrganizationProfile.findById(req.ngoId).populate('user', ['firstName', 'lastName', 'email', 'mobileNumber'])
         if (!ngoProfile) {
             return res.status(404).json({ error: "NGO Profile not found" })
         }
