@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import userReducer from "../Reducers/userReducer";
 import userContext from "../Context/userContext";
 import { LOGIN, SERVER_ERROR, SET_NGO_PROFILE, LOGOUT } from "./actions";
@@ -45,8 +45,6 @@ export default function AuthProvider(props) {
         });
 
         const ngoProfile = ngoResponse.data;
-        console.log("NGO PROFILE:", ngoProfile);
-
         const docsUploaded =
           ngoProfile.coordinatorAadhaarUrl && ngoProfile.ngoLicenseUrl
             ? true
@@ -86,22 +84,18 @@ export default function AuthProvider(props) {
           const userResponse = await axios.get("/api/profile", {
             headers: { Authorization: localStorage.getItem("token") },
           });
-
-          console.log("USER PROFILE:", userResponse.data);
-
           dispatch({ type: LOGIN, payload: userResponse.data });
           dispatch({ type: SERVER_ERROR, payload: "" });
 
           resetForm();
 
           if (userResponse.data.role === "Admin") {
-            navigate("/admin");
+            navigate("/admin/dashboard");
             return;
           }
 
           navigate("/tasks");
         } catch (profileErr) {
-          localStorage.removeItem("token");
           dispatch({
             type: SERVER_ERROR,
             payload:
@@ -155,9 +149,34 @@ export default function AuthProvider(props) {
     }
   };
   //------------------------------------------------------------------------------------------------------------------------
-  const clearServerError=()=>{
-    dispatch({type:SERVER_ERROR,payload:""})
-  }
+  const clearServerError = () => {
+    dispatch({ type: SERVER_ERROR, payload: "" });
+  };
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      (async () => {
+        try {
+          const ngoResponse = await axios.get("/api/ngo/profile", {
+            headers: { Authorization: token },
+          });
+          dispatch({ type: SET_NGO_PROFILE, payload: ngoResponse.data });
+          dispatch({ type: SERVER_ERROR, payload: "" });
+        } catch (ngoErr) {
+          try {
+            const userResponse = await axios.get("/api/profile", {
+              headers: { Authorization: token },
+            });
+            dispatch({ type: LOGIN, payload: userResponse.data });
+            dispatch({ type: SERVER_ERROR, payload: "" });
+          } catch (profileErr) {
+            localStorage.removeItem("token");
+          }
+        }
+      })();
+    }
+  }, []);
+
   //------------------------------------------------------------------------------------------------------------------------
   return (
     <userContext.Provider
@@ -168,7 +187,7 @@ export default function AuthProvider(props) {
         handleLogout,
         handleRegisterNgoStep1,
         handleRegisterStep2,
-        clearServerError
+        clearServerError,
       }}
     >
       {props.children}

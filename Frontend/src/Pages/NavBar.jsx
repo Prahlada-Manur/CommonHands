@@ -10,14 +10,18 @@ import {
   NavigationMenuItem,
 } from "@/components/ui/navigation-menu";
 
+import { ChevronDown } from "lucide-react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 export default function NavBar() {
   const { handleLogout, isLoggedIn, user, ngoProfile } =
     useContext(userContext);
-
-  const getAdminLinks = () => [
-    { label: "Dashboard", path: "/admin/dashboard" },
-    { label: "Profile", path: "/profile" },
-  ];
 
   const getVerifiedNgoLinks = () => [
     { label: "Profile", path: "/ngoprofile" },
@@ -30,23 +34,27 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="max-w-6xl mx-auto flex justify-between items-center p-2">
-      <div className="flex items-center">
+    <nav className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3 font-semibold">
+      {/* LEFT SECTION */}
+      <div className="flex items-center -ml-2">
         <img
           src={logo}
           alt="CommonHands logo"
-          className="h-18 w-18 object-contain px-4"
+          className="h-16 w-16 object-contain mr-3"
         />
-        <h1 className="md:text-2xl font-extrabold font-serif tracking-wide">
+
+        <h1 className="md:text-2xl font-extrabold font-serif tracking-wide leading-tight">
           <Link to="/">
             CommonHands
-            <p className="text-sm">The bridge from intent to action</p>
+            <p className="text-xs font-normal mt-0.5">
+              The bridge from intent to action
+            </p>
           </Link>
         </h1>
       </div>
 
+      {/* RIGHT MENU */}
       <NavigationMenu>
-
         <NavigationMenuList>
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
@@ -57,6 +65,7 @@ export default function NavBar() {
           </NavigationMenuItem>
         </NavigationMenuList>
 
+        {/* IF NOT LOGGED IN */}
         {!isLoggedIn && !localStorage.getItem("token") ? (
           <NavigationMenuList>
             <NavigationMenuItem>
@@ -77,7 +86,6 @@ export default function NavBar() {
           </NavigationMenuList>
         ) : (
           <>
-            {/* LOGOUT */}
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
@@ -89,25 +97,42 @@ export default function NavBar() {
                   </button>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-            </NavigationMenuList>
 
-            <NavigationMenuList>
-              {/* Admin */}
-              {user?.role === "Admin" &&
-                getAdminLinks().map((item) => (
-                  <NavigationMenuItem key={item.path}>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to={item.path}
-                        className="md:text-lg hover:text-black transition"
-                      >
-                        {item.label}
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                ))}
+              {/* ADMIN MENU */}
+              {user?.role === "Admin" && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="md:text-lg hover:text-black transition flex items-center gap-1 cursor-pointer">
+                      Dashboard
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                  </DropdownMenuTrigger>
 
-              {/* ONLY Verified NGO gets these links */}
+                  <DropdownMenuContent align="start" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/dashboard">Overview</Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/ngo">NGO</Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/users">Users</Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/tasks">Tasks</Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/applications">Applications</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+
+              {/* VERIFIED NGO LINKS */}
               {ngoProfile?.status === "Verified" &&
                 getVerifiedNgoLinks().map((item) => (
                   <NavigationMenuItem key={item.path}>
@@ -122,7 +147,7 @@ export default function NavBar() {
                   </NavigationMenuItem>
                 ))}
 
-              {/* Contributor */}
+              {/* CONTRIBUTOR LINKS */}
               {user?.role === "Contributor" &&
                 getContributorLinks().map((item) => (
                   <NavigationMenuItem key={item.path}>

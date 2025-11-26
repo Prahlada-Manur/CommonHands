@@ -5,18 +5,22 @@ import Register from "./Pages/Register";
 import { Routes, Route } from "react-router-dom";
 import RegisterNgo from "./Pages/Register-Ngo-one";
 import UploadDoc from "./Pages/NGO/UploadDoc";
-import AdminContainer from "./Pages/Admin/AdminContainer";
 import Profile from "./Pages/User/Profile";
 import RegisterNgoTwo from "./Pages/register-Ngo-two";
 import NgoLanding from "./Pages/NGO/NgoLanding";
 import Tasks from "./Pages/User/Tasks";
 import NgoStatus from "./Pages/NGO/NgoStatus";
 import AdminDashboard from "./Pages/Admin/AdminDashboard";
+import AdminApplications from "./Pages/Admin/AdminApplications";
+import AdminTasks from "./Pages/Admin/AdminTasks";
+import AdminNgo from "./Pages/Admin/AdminNgo";
+import AdminUsers from "./Pages/Admin/AdminUsers";
+// import AdminNgoById from "./Pages/Admin/AdminNgoById";
 //-------------------------------------------------------------------------------------------------------------------------
 export default function App() {
   return (
-    <div className="min-h-screen bg-yellow-50 text-black">
-      <header className="w-full bg-red-600 text-gray-100 sticky top-0 z-40 shadow-xl">
+    <div className="min-h-screen bg-red-100 text-black">
+      <header className="w-full bg-red-800 text-gray-100 sticky top-0 z-40 shadow-xl">
         <NavBar />
       </header>
       <main>
@@ -26,13 +30,17 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/registerNgo" element={<RegisterNgo />} />
           <Route path="/uploadDoc" element={<UploadDoc />} />
-          <Route path="/admin" element={<AdminContainer />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/registerNgostep2" element={<RegisterNgoTwo />} />
           <Route path="/ngoprofile" element={<NgoLanding />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/ngo/status" element={<NgoStatus />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/ngo" element={<AdminNgo />} />
+          <Route path="/admin/tasks" element={<AdminTasks />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/applications" element={<AdminApplications />} />
+          {/* <Route path="/admin/ngo/:id" element={<AdminNgoById />} /> */}
         </Routes>
       </main>
     </div>

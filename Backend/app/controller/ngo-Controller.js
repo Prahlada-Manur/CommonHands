@@ -69,23 +69,31 @@ ngoCltr.uploadDoc = async (req, res) => {
 //-----------------------------------------API for Admin to verify NGO-----------------------------------------
 ngoCltr.VerifyNgo = async (req, res) => {
     const ngoId = req.params.id;
-    const body = req.body;
+    const { status, reason } = req.body || {};
     try {
-        if (!["Verified", "Rejected"].includes(body.status)) {
-            return res.status(400).json({ error: "Invalid status value" })
+        if (!status) {
+            return res.status(400).json({ error: "Missing 'status' in request body" });
         }
-        if (body.status === "Rejected" && !body.reason) {
+
+        if (!["Verified", "Rejected"].includes(status)) {
+            return res.status(400).json({ error: "Invalid status value. Allowed: 'Verified' or 'Rejected'" })
+        }
+
+        if (status === "Rejected" && !reason) {
             return res.status(400).json({ error: "Reason is required for rejection" })
         }
-        const updateData = { status: body.status };
-        if (body.status === "Rejected") {
-            updateData.reason = body.reason;
+
+        const updateData = { status };
+        if (status === "Rejected") {
+            updateData.reason = reason;
         }
+
         const updateNgo = await OrganizationProfile.findByIdAndUpdate(ngoId, updateData, { new: true }).populate('user', ['firstName', 'email'])
         if (!updateNgo) {
             return res.status(404).json({ error: "NGO Profile not found" })
         }
-        res.status(200).json({ message: "NGO Status is Updated", updateNgo })
+
+        res.status(200).json(updateNgo)
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: 'Internal Server Error' })
@@ -93,7 +101,6 @@ ngoCltr.VerifyNgo = async (req, res) => {
 }
 //-----------------------------------------API to get NGO Profile-----------------------------------------
 ngoCltr.ngoProfile = async (req, res) => {
-    // const id=req.params.id
     try {
         const ngoProfile = await OrganizationProfile.findById(req.ngoId).populate('user', ['firstName', 'lastName', 'email', 'mobileNumber'])
         if (!ngoProfile) {
@@ -161,7 +168,6 @@ ngoCltr.delete = async (req, res) => {
         }
         await Task.deleteMany({ ngo: req.ngoId })
         console.log(`Deleted the task related to ${req.ngoId}`);
-        //helper function to delete the ngo file conataining pic in cloudinary 
         await deleteNgoFolder(req.userId)
         //----------------------------------------------------------------------
         const deleteNgoProfile = await OrganizationProfile.findOneAndDelete({ _id: req.ngoId, user: req.userId });
@@ -185,13 +191,43 @@ ngoCltr.delete = async (req, res) => {
 //------------------------------------API to list all the NGOS-----------------------------------------------------------------
 ngoCltr.list = async (req, res) => {
     try {
-        const ngoList = await OrganizationProfile.find().populate('user', ['firstName', 'lastName', 'email'])
-        res.status(200).json({ message: 'List of all the Ngo with there users', ngoList })
+        const {
+            q,
+            status,
+            page = 1,
+            limit = 5,
+        } = req.query;
+        const skip = (Number(page) - 1) * Number(limit);
+        const filter = {}
+        if (status && status !== "All") {
+            filter.status = status;
+        }
+        if (q) {
+            const regex = new RegExp(q, "i");
+            filter.$or = [
+                { ngoName: regex },
+                { contactEmail: regex },
+                { regNumber: regex },
+            ];
+        }
+        const ngoList = await OrganizationProfile.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(Number(limit))
+        const total = await OrganizationProfile.countDocuments(filter);
+        return res.json({
+            ngoList,
+            total,
+            currentPage: Number(page),
+            limit: Number(limit),
+            totalPages: Math.ceil(total / Number(limit)),
+        });
     } catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Internal server error" })
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
+
 //---------------------------------API to Delete NGO by Admin-----------------------------------------------------------------
 ngoCltr.deleteByAdmin = async (req, res) => {
     try {
@@ -235,5 +271,19 @@ ngoCltr.deleteByAdmin = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+//---------------------------------------------Api to get admin ngo profile-----------------------------------------------------------------------
+ngoCltr.getNgoById = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const ngoProfile = await OrganizationProfile.findById(id).populate('user', ['firstName', 'lastName', 'email', 'mobileNumber'])
+        if (!ngoProfile) {
+            return res.status(404).json({ error: "NGO profile not found" })
+        }
+        res.status(200).json(ngoProfile)
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Intenral server error" })
 
+    }
+}
 module.exports = ngoCltr

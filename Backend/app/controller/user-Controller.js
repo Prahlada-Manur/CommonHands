@@ -151,6 +151,19 @@ userCltr.list = async (req, res) => {
 
     }
 }
-//--------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------Api to get single user account----------------------------------------------------------------------------
+userCltr.adminGetUserById = async (req, res) => {
+    const id = req.params.id
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return re.status(404).json({ error: "User not found" })
+        }
+        res.status(200).json(user)
+    } catch (err) {
+        console.log(err);
+
+    }
+}
 
 module.exports = userCltr

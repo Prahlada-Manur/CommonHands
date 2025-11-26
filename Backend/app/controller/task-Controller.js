@@ -52,7 +52,7 @@ taskCltr.getTaskByNgo = async (req, res) => {
         const tasks = await Task.find({ ngo: req.ngoId }).sort({ createdAt: -1 }).skip(skip)
             .limit(Number(limit))
             .populate('ngo', ['ngoName', 'contactEmail'])
-            .populate('createdBy', ['email', 'firstName', 'lastName'])
+            .populate('createdBy', ['email', 'firstName', 'lastName','mobileNumber'])
         const total = await Task.countDocuments({ ngo: req.ngoId })
         res.status(200).json({
             message: "Tasks list by NGO", total,
@@ -79,7 +79,7 @@ taskCltr.getAllTask = async (req, res) => {
             searchType.$or = [{ title: regex }, { description: regex }]
         }
         const tasks = await Task.find(searchType).sort({ createdAt: -1 }).skip(skip)
-            .limit(Number(limit)).populate('ngo', ['ngoName', 'contactEmail']).populate('createdBy', ['email', 'firstName'])
+            .limit(Number(limit)).populate('ngo', ['ngoName', 'contactEmail']).populate('createdBy', ['email', 'firstName','mobileNumber'])
         const total = await Task.countDocuments(searchType);
         res.status(200).json({
             message: "Open Tasks List", total,
@@ -234,7 +234,7 @@ taskCltr.overview = async (req, res) => {
 
         const matchNgo = { ngo: new mongoose.Types.ObjectId(req.ngoId) };
         if (status && status !== 'All') {
-            matchNgo.taskStatus = status; // 'Open', 'Completed', etc.
+            matchNgo.taskStatus = status; // 'Open'||'Completed'
         }
 
         const tasks = await Task.aggregate([
@@ -304,7 +304,8 @@ taskCltr.overview = async (req, res) => {
                             in: {
                                 firstName: '$$a.firstName',
                                 lastName: '$$a.lastName',
-                                email: '$$a.email'
+                                email: '$$a.email',
+                                mobileNumber: '$$a.mobileNumber'
                             }
                         }
                     },

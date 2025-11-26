@@ -374,5 +374,42 @@ applicationCltr.getApplicationById = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+//---------------------------------------Api for admin to list all the applications--------------------------------------------------
+applicationCltr.adminGetApplications = async (req, res) => {
+    const { status, q, page = 1, limit = 5 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+    const filter = {};
+
+    if (status && status !== "All") {
+        filter.completionStatus = status;
+    }
+    try {
+        const applications = await Application.find(filter)
+            .populate("applicant", ["firstName", "lastName", "email"])
+            .populate("ngo", ["ngoName", "contactEmail"])
+            .populate("task", ["title", "taskType", "deadline", "location"])
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(Number(limit));
+
+        if (!applications || applications.length === 0) {
+            return res.status(400).json({ error: "No application found" });
+        }
+
+        const total = await Application.countDocuments(filter);
+
+        res.status(200).json({
+            message: "List of all applications",
+            total,
+            currentPage: Number(page), limit: Number(limit),
+            totalPage: Math.ceil(total / limit),
+            applications,
+
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
 
 module.exports = applicationCltr    

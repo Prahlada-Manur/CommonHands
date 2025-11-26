@@ -51,30 +51,32 @@ export default function Register() {
       handleUserRegister(values, resetForm);
     },
   });
+
   useEffect(() => {
     clearServerError();
   }, []);
 
   return (
-    <div className="min-h-screen flex justify-center items-center px-4 bg-yellow-50">
-      <Card className="w-full max-w-lg shadow-lg border border-black p-4 rounded-xl">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center font-semibold">
-            Register with Us!!!
-          </CardTitle>
-          <CardDescription className="text-center">
+    <div className="p-15 px-4 bg-red-100 flex justify-center items-start py-10">
+      <Card className="w-full max-w-lg shadow-xl rounded-xl border border-red-200 bg-white">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Register with Us</CardTitle>
+          <CardDescription className="text-gray-600 text-sm">
             Join us in making a difference.
           </CardDescription>
         </CardHeader>
 
         {serverErr && (
-          <p className="text-red-600 text-center text-sm mb-3">{serverErr}</p>
+          <p className="text-red-600 text-center text-sm mb-3 font-medium">
+            {serverErr}
+          </p>
         )}
 
         <CardContent>
           <form onSubmit={formik.handleSubmit} className="space-y-4">
+            {/* NAME ROW */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Label>First Name</Label>
                 <Input
                   type="text"
@@ -83,9 +85,14 @@ export default function Register() {
                   onChange={formik.handleChange}
                   placeholder="Enter First Name"
                 />
+                {formik.errors.firstName && formik.touched.firstName && (
+                  <p className="text-red-600 text-xs">
+                    {formik.errors.firstName}
+                  </p>
+                )}
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Label>Last Name</Label>
                 <Input
                   type="text"
@@ -94,11 +101,17 @@ export default function Register() {
                   onChange={formik.handleChange}
                   placeholder="Enter Last Name"
                 />
+                {formik.errors.lastName && formik.touched.lastName && (
+                  <p className="text-red-600 text-xs">
+                    {formik.errors.lastName}
+                  </p>
+                )}
               </div>
             </div>
 
+            {/* EMAIL + PHONE */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Label>Email</Label>
                 <Input
                   type="email"
@@ -107,9 +120,12 @@ export default function Register() {
                   onChange={formik.handleChange}
                   placeholder="xyz@example.com"
                 />
+                {formik.errors.email && formik.touched.email && (
+                  <p className="text-red-600 text-xs">{formik.errors.email}</p>
+                )}
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Label>Phone Number</Label>
                 <Input
                   type="text"
@@ -126,7 +142,7 @@ export default function Register() {
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label>Password</Label>
               <Input
                 type="password"
@@ -140,29 +156,30 @@ export default function Register() {
               )}
             </div>
 
+            {/* BUTTON */}
             <Button
               type="submit"
-              className="w-full bg-black hover:bg-yellow-700 text-white"
+              className="w-full bg-black hover:bg-red-500 transition text-white font-semibold rounded-lg py-5"
             >
               Register
             </Button>
 
-            <div className="text-center space-y-1 mt-1">
+            <div className="text-center mt-2 space-y-1">
               <p className="text-sm">
-                Already a user?
+                Already a user?{" "}
                 <Link
                   to="/login"
-                  className="text-yellow-700 font-medium hover:underline"
+                  className="text-red-700 font-medium hover:underline"
                 >
                   Login
                 </Link>
               </p>
 
               <p className="text-sm">
-                Looking to register your organization?
+                Want to register your organization?{" "}
                 <Link
                   to="/registerNgo"
-                  className="text-yellow-700 font-medium hover:underline"
+                  className="text-red-700 font-medium hover:underline"
                 >
                   Click here
                 </Link>

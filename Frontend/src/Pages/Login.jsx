@@ -24,10 +24,7 @@ export default function Login() {
   const { handleLogin, serverErr, clearServerError } = useContext(userContext);
 
   const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
+    initialValues: { email: "", password: "" },
     validationSchema: validation,
     onSubmit: (values, { resetForm }) => {
       handleLogin(values, resetForm);
@@ -39,24 +36,24 @@ export default function Login() {
   }, []);
 
   return (
-    <div className="min-h-screen flex justify-center items-center px-4 bg-yellow-50">
-      <Card className="w-full max-w-md shadow-lg border border-black p-4 rounded-xl">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center font-semibold">
-            Welcome Back!
-          </CardTitle>
-          <CardDescription className="text-center">
+    <div className="p-20 px-4 bg-red-100 flex justify-center items-start ">
+      <Card className="w-full max-w-md shadow-xl rounded-xl border border-red-200 bg-white">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Welcome Back!</CardTitle>
+          <CardDescription className="text-gray-600 text-sm">
             Login to continue your journey.
           </CardDescription>
         </CardHeader>
 
         {serverErr && (
-          <p className="text-red-600 text-center text-sm mb-2">{serverErr}</p>
+          <p className="text-red-600 text-center text-sm mb-2 font-medium">
+            {serverErr}
+          </p>
         )}
 
         <CardContent>
-          <form onSubmit={formik.handleSubmit} className="space-y-4">
-            <div className="space-y-1">
+          <form onSubmit={formik.handleSubmit} className="space-y-5">
+            <div className="space-y-2">
               <Label>Email</Label>
               <Input
                 type="email"
@@ -65,20 +62,18 @@ export default function Login() {
                 onChange={formik.handleChange}
                 placeholder="xyz@example.com"
               />
-              {formik.errors.email &&
-                formik.touched.email(
-                  <p className="text-red-600 text-xs">{formik.errors.email}</p>
-                )}
+              {formik.errors.email && formik.touched.email && (
+                <p className="text-red-600 text-xs">{formik.errors.email}</p>
+              )}
             </div>
-
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label>Password</Label>
               <Input
                 type="password"
                 name="password"
                 value={formik.values.password}
                 onChange={formik.handleChange}
-                placeholder="*************"
+                placeholder="Enter your password"
               />
               {formik.errors.password && formik.touched.password && (
                 <p className="text-red-600 text-xs">{formik.errors.password}</p>
@@ -87,27 +82,27 @@ export default function Login() {
 
             <Button
               type="submit"
-              className="w-full bg-black hover:bg-yellow-700 text-white"
+              className="w-full bg-black hover:bg-red-500 transition text-white font-semibold rounded-lg py-5"
             >
               Login
             </Button>
 
-            <div className="text-center space-y-1 mt-1">
+            <div className="text-center mt-2 space-y-1">
               <p className="text-sm">
-                New to the platform?
+                New to the platform?{" "}
                 <Link
                   to="/register"
-                  className="text-yellow-700 font-medium hover:underline"
+                  className="text-red-700 font-medium hover:underline"
                 >
                   Register
                 </Link>
               </p>
 
               <p className="text-sm">
-                Want to register your NGO?
+                Want to register your NGO?{" "}
                 <Link
                   to="/registerNgo"
-                  className="text-yellow-700 font-medium hover:underline"
+                  className="text-red-700 font-medium hover:underline"
                 >
                   Click here
                 </Link>

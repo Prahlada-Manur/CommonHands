@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-//----------------------------------------------------------- VALIDATION -------------------------------------------------------
 const validation = Yup.object().shape({
   ngoName: Yup.string().required("Organization name is required"),
   contactEmail: Yup.string()
@@ -24,7 +23,6 @@ const validation = Yup.object().shape({
   regNumber: Yup.string().required("Registration / Darpan number is required"),
 });
 
-//----------------------------------------------------------- COMPONENT --------------------------------------------------------
 export default function RegisterNgoTwo() {
   const { serverErr, handleRegisterStep2, clearServerError } =
     useContext(userContext);
@@ -40,29 +38,30 @@ export default function RegisterNgoTwo() {
       handleRegisterStep2(values, resetForm);
     },
   });
-  useEffect(() => {
-    clearServerError();
-  }, []);
+
+  useEffect(() => clearServerError(), []);
 
   return (
-    <div className="min-h-screen flex justify-center items-center px-4 bg-yellow-50">
-      <Card className="w-full max-w-lg shadow-lg border border-black p-4 rounded-xl">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center font-semibold">
+    <div className="p-10 px-4 bg-red-100 flex justify-center items-start py-10">
+      <Card className="w-full max-w-lg shadow-md rounded-xl border border-red-200 bg-white">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl text-center font-bold">
             Organization Details
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-gray-600 text-sm text-center">
             Step 2: Complete organization profile
           </CardDescription>
         </CardHeader>
 
         {serverErr && (
-          <p className="text-red-600 text-center text-sm mb-3">{serverErr}</p>
+          <p className="text-red-600 text-center text-sm mb-2 font-medium">
+            {serverErr}
+          </p>
         )}
 
-        <CardContent>
-          <form onSubmit={formik.handleSubmit} className="space-y-4">
-            {/* Organization Name */}
+        <CardContent className="pt-0">
+          <form onSubmit={formik.handleSubmit} className="space-y-3">
+            {/* ORGANIZATION NAME */}
             <div className="space-y-1">
               <Label>Organization Name</Label>
               <Input
@@ -70,11 +69,14 @@ export default function RegisterNgoTwo() {
                 name="ngoName"
                 value={formik.values.ngoName}
                 onChange={formik.handleChange}
-                placeholder="Enter Organization Name"
+                placeholder="Organization Name"
               />
+              {formik.errors.ngoName && formik.touched.ngoName && (
+                <p className="text-red-600 text-xs">{formik.errors.ngoName}</p>
+              )}
             </div>
 
-            {/* Darpan / Registration Number */}
+            {/* REG NUMBER */}
             <div className="space-y-1">
               <Label>Darpan / Registration Number</Label>
               <Input
@@ -82,11 +84,16 @@ export default function RegisterNgoTwo() {
                 name="regNumber"
                 value={formik.values.regNumber}
                 onChange={formik.handleChange}
-                placeholder="AB/134/56789"
+                placeholder="AB/123/56789"
               />
+              {formik.errors.regNumber && formik.touched.regNumber && (
+                <p className="text-red-600 text-xs">
+                  {formik.errors.regNumber}
+                </p>
+              )}
             </div>
 
-            {/* Contact Email */}
+            {/* CONTACT EMAIL */}
             <div className="space-y-1">
               <Label>Contact Email</Label>
               <Input
@@ -96,21 +103,28 @@ export default function RegisterNgoTwo() {
                 onChange={formik.handleChange}
                 placeholder="xyz@example.com"
               />
+              {formik.errors.contactEmail && formik.touched.contactEmail && (
+                <p className="text-red-600 text-xs">
+                  {formik.errors.contactEmail}
+                </p>
+              )}
             </div>
 
-            {/* Button */}
+            {/* SUBMIT BUTTON */}
             <Button
               type="submit"
-              className="w-full bg-black hover:bg-yellow-700 text-white"
+              className="w-full bg-black hover:bg-red-500 transition text-white rounded-lg py-3"
             >
               Submit & Login
             </Button>
           </form>
-          <div className="text-center mt-2">
+
+          {/* BACK LINK */}
+          <div className="text-center mt-3">
             <p className="text-sm">
               <Link
                 to="/registerNgo"
-                className="text-yellow-700 font-medium hover:underline"
+                className="text-red-700 font-medium hover:underline"
               >
                 ← Go back to Step 1
               </Link>

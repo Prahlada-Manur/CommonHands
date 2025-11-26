@@ -22,12 +22,9 @@ const validation = Yup.object().shape({
   password: Yup.string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters")
-    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .matches(/[0-9]/, "Password must contain at least one number")
-    .matches(
-      /[!@#$%^&*.]/,
-      "Password must contain at least one special character"
-    ),
+    .matches(/[A-Z]/, "Must contain one uppercase letter")
+    .matches(/[0-9]/, "Must contain one number")
+    .matches(/[!@#$%^&*.]/, "Must contain one special character"),
   mobileNumber: Yup.string()
     .required("Mobile number is required")
     .min(10, "Mobile number must be at least 10 digits"),
@@ -46,33 +43,33 @@ export default function RegisterNgo() {
       mobileNumber: "",
     },
     validationSchema: validation,
-    onSubmit: (values) => {
-      handleRegisterNgoStep1(values);
-    },
+    onSubmit: (values) => handleRegisterNgoStep1(values),
   });
-  useEffect(() => {
-    clearServerError();
-  }, []);
+
+  useEffect(() => clearServerError(), []);
 
   return (
-    <div className="min-h-screen flex justify-center items-center px-4 bg-yellow-50">
-      <Card className="w-full max-w-lg shadow-lg border border-black p-4 rounded-xl">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center font-semibold">
+    <div className="p-15 px-4 bg-red-100 flex justify-center items-start ">
+      <Card className="w-full max-w-lg shadow-md rounded-xl border border-red-200 bg-white">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl text-center font-bold">
             Register Your Organization
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-gray-600 text-sm text-center">
             Step 1: Create admin login account
           </CardDescription>
         </CardHeader>
 
         {serverErr && (
-          <p className="text-red-600 text-center text-sm mb-3">{serverErr}</p>
+          <p className="text-red-600 text-center text-sm mb-2 font-medium">
+            {serverErr}
+          </p>
         )}
 
-        <CardContent>
-          <form onSubmit={formik.handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="pt-0">
+          <form onSubmit={formik.handleSubmit} className="space-y-3">
+            {/* FIRST + LAST NAME */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>First Name</Label>
                 <Input
@@ -80,8 +77,13 @@ export default function RegisterNgo() {
                   name="firstName"
                   value={formik.values.firstName}
                   onChange={formik.handleChange}
-                  placeholder="Enter First Name"
+                  placeholder="First Name"
                 />
+                {formik.errors.firstName && formik.touched.firstName && (
+                  <p className="text-red-600 text-xs">
+                    {formik.errors.firstName}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1">
@@ -91,12 +93,18 @@ export default function RegisterNgo() {
                   name="lastName"
                   value={formik.values.lastName}
                   onChange={formik.handleChange}
-                  placeholder="Enter Last Name"
+                  placeholder="Last Name"
                 />
+                {formik.errors.lastName && formik.touched.lastName && (
+                  <p className="text-red-600 text-xs">
+                    {formik.errors.lastName}
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* EMAIL + MOBILE */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>Email</Label>
                 <Input
@@ -106,6 +114,9 @@ export default function RegisterNgo() {
                   onChange={formik.handleChange}
                   placeholder="xyz@example.com"
                 />
+                {formik.errors.email && formik.touched.email && (
+                  <p className="text-red-600 text-xs">{formik.errors.email}</p>
+                )}
               </div>
 
               <div className="space-y-1">
@@ -125,6 +136,7 @@ export default function RegisterNgo() {
               </div>
             </div>
 
+            {/* PASSWORD */}
             <div className="space-y-1">
               <Label>Password</Label>
               <Input
@@ -132,27 +144,27 @@ export default function RegisterNgo() {
                 name="password"
                 value={formik.values.password}
                 onChange={formik.handleChange}
-                placeholder="***********"
+                placeholder="Password"
               />
               {formik.errors.password && formik.touched.password && (
                 <p className="text-red-600 text-xs">{formik.errors.password}</p>
               )}
             </div>
 
+            {/* BUTTON */}
             <Button
               type="submit"
-              className="w-full bg-black hover:bg-yellow-700 text-white"
+              className="w-full bg-black hover:bg-red-500 text-white rounded-lg py-3"
             >
               Next
             </Button>
           </form>
-          <div className="text-center mt-2">
+
+          {/* LOGIN LINK */}
+          <div className="text-center mt-3">
             <p className="text-sm">
-              Already a User?
-              <Link
-                to="/login"
-                className="text-yellow-700 font-medium hover:underline"
-              >
+              Already a user?{" "}
+              <Link to="/login" className="text-red-700 hover:underline">
                 Login
               </Link>
             </p>
