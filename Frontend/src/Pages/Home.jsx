@@ -2,28 +2,29 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, HandHeart, Users, Globe2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import logo from "../assets/newlogo.png";
+import heroImage from "../assets/heroImage.jpg";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-red-100">
-      <section className="max-w-7xl mx-auto px-6 pt-24 pb-28 grid md:grid-cols-2 gap-12 items-center">
-        <div className="text-center md:text-left">
-          <h1 className="text-5xl font-extrabold text-gray-900 leading-tight drop-shadow">
-            Empowering NGOs & Contributors
+    <div className="min-h-screen bg-linear-to-br from-red-50 to-red-100">
+      <section className="max-w-7xl mx-auto px-6 pt-28 pb-32 grid md:grid-cols-2 gap-16 items-center">
+        <div className="space-y-6 text-center md:text-left">
+          <h1 className="text-5xl md:text-6xl font-black leading-[1.1] text-gray-900">
+            Bridging NGOs and People Who Care
             <br />
-            <span className="text-red-700">Together We Create Impact</span>
+            <span className="bg-linear-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
+              Together We Create Impact
+            </span>
           </h1>
 
-          <p className="mt-4 text-lg text-gray-700 max-w-xl">
-            CommonHands is a unified platform bringing NGOs, volunteers, and
-            donors together — making social change collaborative and accessible
-            to everyone.
+          <p className="text-lg text-gray-700 max-w-lg mx-auto md:mx-0">
+            CommonHands connects NGOs, volunteers, and donors on a transparent
+            platform — making it easier than ever to create meaningful impact.
           </p>
 
-          <div className="mt-8 flex justify-center md:justify-start gap-6">
+          <div className="flex flex-wrap justify-center md:justify-start gap-5 pt-4">
             <Link to="/register">
-              <Button className="px-8 py-6 text-lg bg-black hover:bg-red-700 text-white shadow-lg rounded-xl">
+              <Button className="px-8 py-6 text-lg bg-red-600 hover:bg-red-700 text-white rounded-2xl shadow-xl">
                 Join as Contributor
               </Button>
             </Link>
@@ -31,7 +32,7 @@ export default function Home() {
             <Link to="/registerNgo">
               <Button
                 variant="outline"
-                className="px-8 py-6 text-lg border-black hover:bg-red-300 rounded-xl shadow"
+                className="px-8 py-6 text-lg border-2 border-red-600 text-red-700 hover:bg-red-100 rounded-2xl shadow"
               >
                 Register Your NGO
               </Button>
@@ -39,30 +40,33 @@ export default function Home() {
           </div>
         </div>
 
+        {/* RIGHT SIDE — PERFECTLY FIXED CARD */}
         <div className="flex justify-center">
-          <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm border border-red-200">
+          <div className="rounded-3xl shadow-xl border md:w-xl  h-auto">
             <img
-              src={logo}
-              alt="CommonHands Logo"
-              className="w-full object-contain rounded-xl "
+              src={heroImage}
+              alt="Hero"
+              className="rounded-2xl w-full h-auto object-contain"
             />
           </div>
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-6 pt-12 pb-20">
+      {/* ================= WHAT IS NGO ================= */}
+      <section className="max-w-6xl mx-auto px-6 pt-10 pb-20">
         <h2 className="text-4xl font-bold text-center mb-6">
           What is an <span className="text-red-700">NGO?</span>
         </h2>
 
         <p className="text-lg text-gray-700 max-w-4xl mx-auto text-center leading-relaxed">
           NGOs (Non-Governmental Organizations) work to solve social,
-          environmental, and community challenges without profit motives. They
-          bring meaningful change in areas like education, women empowerment,
-          animal welfare, healthcare, environment, and more.
+          environmental, and community challenges. They impact lives through
+          education, healthcare, women empowerment, animal welfare, environment,
+          and more.
         </p>
       </section>
 
+      {/* ================= WHY COMMONHANDS ================= */}
       <section className="max-w-6xl mx-auto px-6 pb-28">
         <h2 className="text-4xl font-bold text-center mb-12">
           Why Choose <span className="text-red-700">CommonHands?</span>
@@ -74,8 +78,8 @@ export default function Home() {
               <HandHeart className="w-14 h-14 mx-auto text-red-600 mb-4" />
               <h3 className="text-xl font-semibold mb-2">Verified NGOs</h3>
               <p className="text-gray-700">
-                Each NGO is professionally verified to ensure trust and genuine
-                impact.
+                Every NGO is verified to ensure trust, quality, and
+                transparency.
               </p>
             </CardContent>
           </Card>
@@ -87,8 +91,7 @@ export default function Home() {
                 Contributors & Volunteers
               </h3>
               <p className="text-gray-700">
-                Whether you're giving time, skills, or funds — your support
-                matters.
+                Your time, skills, or funds directly support meaningful causes.
               </p>
             </CardContent>
           </Card>
@@ -100,12 +103,14 @@ export default function Home() {
                 Transparent Platform
               </h3>
               <p className="text-gray-700">
-                Clear insights into NGO activities, needs, and contributions.
+                Track NGO updates, contributions, and activities with clarity.
               </p>
             </CardContent>
           </Card>
         </div>
       </section>
+
+      {/* ================= HOW IT WORKS ================= */}
       <section className="max-w-6xl mx-auto px-6 pb-24">
         <h2 className="text-4xl font-bold text-center mb-12">
           How <span className="text-red-700">CommonHands</span> Works
@@ -126,7 +131,7 @@ export default function Home() {
               2. Contributors Join
             </h3>
             <p className="text-gray-700">
-              Individuals sign up, support events, and offer help.
+              Individuals sign up, join events, and offer help.
             </p>
           </Card>
 
@@ -135,11 +140,13 @@ export default function Home() {
               3. Impact Happens
             </h3>
             <p className="text-gray-700">
-              Efforts turn into real-world change and community improvement.
+              Every effort contributes to real-world community impact.
             </p>
           </Card>
         </div>
       </section>
+
+      {/* ================= CTA SECTION ================= */}
       <section className="bg-black text-white py-16">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
           <p className="text-2xl font-semibold mb-6 md:mb-0">

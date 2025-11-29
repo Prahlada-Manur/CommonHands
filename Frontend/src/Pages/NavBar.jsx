@@ -3,13 +3,6 @@ import logo from "../assets/newlogo.png";
 import userContext from "../Context/userContext";
 import { useContext } from "react";
 
-import {
-  NavigationMenu,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuItem,
-} from "@/components/ui/navigation-menu";
-
 import { ChevronDown } from "lucide-react";
 
 import {
@@ -34,16 +27,24 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3 font-semibold">
-      {/* LEFT SECTION */}
-      <div className="flex items-center -ml-2">
+    <nav
+      className="
+        max-w-7xl mx-auto w-full
+        flex flex-col md:flex-row 
+        justify-between items-center 
+        gap-4 md:gap-0
+        px-6 py-3 font-semibold
+      "
+    >
+      {/* LEFT SECTION — LOGO */}
+      <div className="flex items-center gap-3">
         <img
           src={logo}
           alt="CommonHands logo"
-          className="h-16 w-16 object-contain mr-3"
+          className="h-14 w-14 object-contain"
         />
 
-        <h1 className="md:text-2xl font-extrabold font-serif tracking-wide leading-tight">
+        <h1 className="text-xl md:text-2xl font-extrabold font-serif leading-tight">
           <Link to="/">
             CommonHands
             <p className="text-xs font-normal mt-0.5">
@@ -53,118 +54,99 @@ export default function NavBar() {
         </h1>
       </div>
 
-      {/* RIGHT MENU */}
-      <NavigationMenu>
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild>
-              <Link className="md:text-lg hover:text-black transition" to="/">
-                Home
-              </Link>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        </NavigationMenuList>
+      {/* RIGHT SECTION — MENU */}
+      <div className="flex flex-wrap justify-center items-center gap-4">
+        {/* HOME */}
+        <Link className="text-base md:text-lg hover:text-black" to="/">
+          Home
+        </Link>
 
         {/* IF NOT LOGGED IN */}
         {!isLoggedIn && !localStorage.getItem("token") ? (
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link className="md:text-lg" to="/login">
-                  Login
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
+          <>
+            <Link className="text-base md:text-lg hover:text-black" to="/login">
+              Login
+            </Link>
 
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link className="md:text-lg" to="/register">
-                  Register
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          </NavigationMenuList>
+            <Link
+              className="text-base md:text-lg hover:text-black"
+              to="/register"
+            >
+              Register
+            </Link>
+          </>
         ) : (
           <>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <button
-                    onClick={handleLogout}
-                    className="md:text-lg hover:text-black transition"
-                  >
-                    Logout
+            {/* LOGOUT */}
+            <button
+              onClick={() => {
+                handleLogout()
+              }}
+              className="text-base md:text-lg hover:text-black"
+            >
+              Logout
+            </button>
+
+            {/* ADMIN MENU */}
+            {user?.role === "Admin" && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="text-base md:text-lg hover:text-black flex items-center gap-1 cursor-pointer">
+                    Dashboard
+                    <ChevronDown className="w-4 h-4" />
                   </button>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+                </DropdownMenuTrigger>
 
-              {/* ADMIN MENU */}
-              {user?.role === "Admin" && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="md:text-lg hover:text-black transition flex items-center gap-1 cursor-pointer">
-                      Dashboard
-                      <ChevronDown className="w-4 h-4" />
-                    </button>
-                  </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-44">
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin/dashboard">Overview</Link>
+                  </DropdownMenuItem>
 
-                  <DropdownMenuContent align="start" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/dashboard">Overview</Link>
-                    </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin/ngo">NGO</Link>
+                  </DropdownMenuItem>
 
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/ngo">NGO</Link>
-                    </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin/users">Users</Link>
+                  </DropdownMenuItem>
 
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/users">Users</Link>
-                    </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin/tasks">Tasks</Link>
+                  </DropdownMenuItem>
 
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/tasks">Tasks</Link>
-                    </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin/applications">Applications</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
 
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/applications">Applications</Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+            {/* VERIFIED NGO LINKS */}
+            {ngoProfile?.status === "Verified" &&
+              getVerifiedNgoLinks().map((item) => (
+                <Link
+                  key={item.path}
+                  className="text-base md:text-lg hover:text-black"
+                  to={item.path}
+                >
+                  {item.label}
+                </Link>
+              ))}
 
-              {/* VERIFIED NGO LINKS */}
-              {ngoProfile?.status === "Verified" &&
-                getVerifiedNgoLinks().map((item) => (
-                  <NavigationMenuItem key={item.path}>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to={item.path}
-                        className="md:text-lg hover:text-black transition"
-                      >
-                        {item.label}
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                ))}
-
-              {/* CONTRIBUTOR LINKS */}
-              {user?.role === "Contributor" &&
-                getContributorLinks().map((item) => (
-                  <NavigationMenuItem key={item.path}>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        to={item.path}
-                        className="md:text-lg hover:text-black transition"
-                      >
-                        {item.label}
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                ))}
-            </NavigationMenuList>
+            {/* CONTRIBUTOR LINKS */}
+            {user?.role === "Contributor" &&
+              getContributorLinks().map((item) => (
+                <Link
+                  key={item.path}
+                  className="text-base md:text-lg hover:text-black"
+                  to={item.path}
+                >
+                  {item.label}
+                </Link>
+              ))}
           </>
         )}
-      </NavigationMenu>
+      </div>
     </nav>
   );
 }

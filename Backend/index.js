@@ -38,6 +38,7 @@ app.delete('/api/ngo/delete', authenticateUser, authorizeUser(['NGO']), ngoCltr.
 app.get('/api/ngo/list', authenticateUser, authorizeUser(['Admin']), ngoCltr.list)
 app.delete('/api/ngo/admin/:id', authenticateUser, authorizeUser(['Admin']), ngoCltr.deleteByAdmin)
 app.get('/api/ngo/profile/:id', authenticateUser, authorizeUser(['Admin']), ngoCltr.getNgoById)
+app.get('/api/admin/stats', authenticateUser, authorizeUser(['Admin']), ngoCltr.adminStats)
 //-------------------------------------------------------------------------------------------------
 //--------------------------------------API Endpoints for Task-------------------------------------
 app.post('/api/task', authenticateUser, authorizeUser(['NGO']), upload, taskCltr.createTask)
@@ -60,6 +61,7 @@ app.get('/api/ngo/logs', authenticateUser, authorizeUser(['NGO']), applicationCl
 app.put('/api/application/:appId/log/:logId/status', authenticateUser, authorizeUser(['NGO']), applicationCltr.updateLogStatus)
 app.get('/api/application/:id', authenticateUser, authorizeUser(['Contributor', 'Admin']), applicationCltr.getApplicationById)
 app.get('/api/admin/applications', authenticateUser, authorizeUser(['Admin']), applicationCltr.adminGetApplications)
+app.delete('/api/application/:id', authenticateUser, authorizeUser(["Admin", "NGO", "Contributor"]), applicationCltr.delete)
 //----------------------------------------------------------------------------------------------------------------
 //---------------------------------------API endpoints for doantion---------------------------------------
 app.post('/api/donations/:taskId', authenticateUser, donationCltr.donate)

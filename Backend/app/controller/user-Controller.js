@@ -133,7 +133,7 @@ userCltr.delete = async (req, res) => {
         if (!deleteUser) {
             return res.status(404).json({ error: "User Not Found" })
         }
-        res.status(200).json({ message: "Successfully deleted the User", deleteUser })
+        res.status(200).json(deleteUser)
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: "Internal Server Error" })
@@ -143,14 +143,54 @@ userCltr.delete = async (req, res) => {
 //-----------------------------------------------API to show all the user to Admin--------------------------------------------
 userCltr.list = async (req, res) => {
     try {
-        const listUsers = await User.find();
-        res.status(200).json({ message: "List of all the users", listUsers })
+        const {
+            q,
+            role,
+            page = 1,
+            limit = 5,
+        } = req.query;
+
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const filter = {};
+        if (role && role !== "All") {
+            filter.role = role;
+        }
+        if (q) {
+            const regex = new RegExp(q, "i");
+            filter.$or = [
+                { firstName: regex },
+                { lastName: regex },
+                { email: regex },
+                { mobileNumber: regex },
+            ];
+        }
+
+        const userList = await User.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(Number(limit))
+            .select("-password");
+
+        const total = await User.countDocuments(filter);
+        const totalNGOs = await User.countDocuments({ role: "NGO" });
+        const totalContributors = await User.countDocuments({ role: "Contributor" });
+
+        return res.json({
+            userList,
+            total,
+            totalNGOs,
+            totalContributors,
+            currentPage: Number(page),
+            limit: Number(limit),
+            totalPages: Math.ceil(total / Number(limit)),
+        });
+
     } catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Internal server error" })
-
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
 //----------------------------------------------Api to get single user account----------------------------------------------------------------------------
 userCltr.adminGetUserById = async (req, res) => {
     const id = req.params.id

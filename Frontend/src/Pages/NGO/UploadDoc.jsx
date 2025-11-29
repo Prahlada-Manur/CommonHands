@@ -84,7 +84,6 @@ export default function UploadDoc() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-3">
-            {/* Aadhaar Upload */}
             <div className="space-y-1">
               <Label>Upload Coordinator Aadhaar</Label>
               <Input
@@ -95,8 +94,6 @@ export default function UploadDoc() {
                 className="cursor-pointer bg-white"
               />
             </div>
-
-            {/* NGO License Upload */}
             <div className="space-y-1">
               <Label>Upload NGO License</Label>
               <Input

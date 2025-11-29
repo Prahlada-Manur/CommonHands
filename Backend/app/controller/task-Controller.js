@@ -52,7 +52,7 @@ taskCltr.getTaskByNgo = async (req, res) => {
         const tasks = await Task.find({ ngo: req.ngoId }).sort({ createdAt: -1 }).skip(skip)
             .limit(Number(limit))
             .populate('ngo', ['ngoName', 'contactEmail'])
-            .populate('createdBy', ['email', 'firstName', 'lastName','mobileNumber'])
+            .populate('createdBy', ['email', 'firstName', 'lastName', 'mobileNumber'])
         const total = await Task.countDocuments({ ngo: req.ngoId })
         res.status(200).json({
             message: "Tasks list by NGO", total,
@@ -79,7 +79,7 @@ taskCltr.getAllTask = async (req, res) => {
             searchType.$or = [{ title: regex }, { description: regex }]
         }
         const tasks = await Task.find(searchType).sort({ createdAt: -1 }).skip(skip)
-            .limit(Number(limit)).populate('ngo', ['ngoName', 'contactEmail']).populate('createdBy', ['email', 'firstName','mobileNumber'])
+            .limit(Number(limit)).populate('ngo', ['ngoName', 'contactEmail']).populate('createdBy', ['email', 'firstName', 'mobileNumber'])
         const total = await Task.countDocuments(searchType);
         res.status(200).json({
             message: "Open Tasks List", total,
@@ -189,43 +189,77 @@ taskCltr.delete = async (req, res) => {
             }
         }
         const deleteTask = await Task.findByIdAndDelete(id);
-        res.status(200).json({ message: 'Successfully deleted a task', deleteTask })
+        res.status(200).json(deleteTask)
     } catch (err) {
         res.status(500).json({ error: "Internal server error" })
     }
 }
-//-----------------------------API for admin to get all tasks
+//-----------------------------API for admin to get all tasks-----------------------------------------
 taskCltr.getAdminTasks = async (req, res) => {
     try {
-        const { type, q, page = 1, limit = 5, status } = req.query
-        let searchType = {}
-        const skip = (Number(page) - 1) * Number(limit)
-        if (status) {
-            searchType = { taskStatus: status }
+        const { type, q, page = 1, limit = 5, status } = req.query;
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const filter = {};
+
+        if (type && type !== "All") {
+            filter.taskType = type
         }
-        if (type) {
-            const Type = type.toLowerCase();
-            searchType.taskType = Type === 'volunteer' ? 'Volunteer' : 'funding';
+
+        if (status && status !== "All") {
+            filter.taskStatus = status;
         }
         if (q) {
-            const regex = new RegExp(q, 'i')
-            searchType.$or = [{ title: regex }, { description: regex }]
+            const regex = new RegExp(q, "i");
+            filter.$or = [
+                { title: regex },
+                { description: regex }
+            ];
         }
-        const tasks = await Task.find(searchType).sort({ createdAt: -1 }).skip(skip)
-            .limit(Number(limit)).populate('ngo', ['ngoName', 'contactEmail'])
-            .populate('createdBy', ['email', 'firstName'])
-        const total = await Task.countDocuments(searchType);
+
+        // Main List
+        const tasks = await Task.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(Number(limit))
+            .populate("ngo", ["ngoName", "contactEmail"])
+            .populate("createdBy", ["email", "firstName"]);
+        const [
+            totalFiltered,
+            totalTasks,
+            totalVolunteerTasks,
+            totalFundingTasks,
+            totalOpenTasks,
+        ] = await Promise.all([
+            Task.countDocuments(filter),
+            Task.countDocuments(),
+            Task.countDocuments({ taskType: "Volunteer" }),
+            Task.countDocuments({ taskType: "funding" }),
+            Task.countDocuments({ taskStatus: "Open" }),
+        ]);
+
         res.status(200).json({
-            message: "Open Tasks List", total,
-            currentPage: Number(page), limit: Number(limit),
-            totalPage: Math.ceil(total / limit), tasks
-        })
+            message: "Admin Task List",
+            stats: {
+                totalTasks,
+                totalVolunteerTasks,
+                totalFundingTasks,
+                totalOpenTasks,
+            },
+            tasks,
+            totalFiltered,
+            currentPage: Number(page),
+            limit: Number(limit),
+            totalPages: Math.ceil(totalFiltered / limit),
+        });
+
     } catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Internal server error" })
-
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
+
+
 //-------------------------------APi for ngo Dashboard----------------------------------------------------------
 taskCltr.overview = async (req, res) => {
     try {
@@ -349,6 +383,36 @@ taskCltr.overview = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+//--------------------------------Api to update task status manually----------------------------------
+taskCltr.updateTaskStatus = async (req, res) => {
+    const taskId = req.params.id;
+
+    try {
+        if (!taskId) {
+            return res.status(400).json({ error: "Task ID not provided" });
+        }
+        const updatedTask = await Task.findOneAndUpdate(
+            { _id: taskId, ngo: req.ngoId, taskStatus: "Open" },   
+            { taskStatus: "Completed" },                           
+            { new: true }                                         
+        );
+        if (!updatedTask) {
+            return res.status(400).json({
+                error: "Task not found, already completed, or you are not authorized"
+            });
+        }
+        return res.status(200).json({
+            message: "Task status updated to Completed",
+            taskId: updatedTask._id,
+            newStatus: updatedTask.taskStatus
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
 
 
 

@@ -15,12 +15,11 @@ import AdminApplications from "./Pages/Admin/AdminApplications";
 import AdminTasks from "./Pages/Admin/AdminTasks";
 import AdminNgo from "./Pages/Admin/AdminNgo";
 import AdminUsers from "./Pages/Admin/AdminUsers";
-// import AdminNgoById from "./Pages/Admin/AdminNgoById";
 //-------------------------------------------------------------------------------------------------------------------------
 export default function App() {
   return (
     <div className="min-h-screen bg-red-100 text-black">
-      <header className="w-full bg-red-800 text-gray-100 sticky top-0 z-40 shadow-xl">
+      <header className="w-auto bg-red-800 text-gray-100 sticky top-0 z-40 shadow-xl">
         <NavBar />
       </header>
       <main>
@@ -40,7 +39,6 @@ export default function App() {
           <Route path="/admin/tasks" element={<AdminTasks />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/applications" element={<AdminApplications />} />
-          {/* <Route path="/admin/ngo/:id" element={<AdminNgoById />} /> */}
         </Routes>
       </main>
     </div>

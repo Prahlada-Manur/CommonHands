@@ -1,5 +1,6 @@
 const OrganizationProfile = require('../model/organizationProfile-Schema');
 const User = require('../model/user-Schema');
+const Application = require('../model/application-Schema')
 const { ngoRegisterationValidation, ngoUpdateValidation } = require('../validations/user-Validation')
 const bcryptjs = require('bcryptjs');
 const Task = require('../model/task-Schema')
@@ -197,11 +198,14 @@ ngoCltr.list = async (req, res) => {
             page = 1,
             limit = 5,
         } = req.query;
+
         const skip = (Number(page) - 1) * Number(limit);
-        const filter = {}
+        const filter = {};
+
         if (status && status !== "All") {
             filter.status = status;
         }
+
         if (q) {
             const regex = new RegExp(q, "i");
             filter.$or = [
@@ -210,23 +214,42 @@ ngoCltr.list = async (req, res) => {
                 { regNumber: regex },
             ];
         }
+
         const ngoList = await OrganizationProfile.find(filter)
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(Number(limit))
+            .limit(Number(limit));
+
         const total = await OrganizationProfile.countDocuments(filter);
+
+        const [pending, verified, rejected] = await Promise.all([
+            OrganizationProfile.countDocuments({ status: "Pending" }),
+            OrganizationProfile.countDocuments({ status: "Verified" }),
+            OrganizationProfile.countDocuments({ status: "Rejected" })
+        ]);
+
         return res.json({
             ngoList,
             total,
             currentPage: Number(page),
             limit: Number(limit),
             totalPages: Math.ceil(total / Number(limit)),
+            stats: {
+                pending,
+                verified,
+                rejected,
+                total
+            }
         });
+
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
+
+
 
 //---------------------------------API to Delete NGO by Admin-----------------------------------------------------------------
 ngoCltr.deleteByAdmin = async (req, res) => {
@@ -261,8 +284,7 @@ ngoCltr.deleteByAdmin = async (req, res) => {
 
         const deletedUser = await User.findByIdAndDelete(ngoToDelete.user);
         res.status(200).json({
-            message: 'NGO,tasks and linked user deleted successfully by Admin',
-            deletedNgo: ngoToDelete,
+            ngoToDelete,
             deletedUser: deletedUser
         });
 
@@ -286,4 +308,51 @@ ngoCltr.getNgoById = async (req, res) => {
 
     }
 }
+//--------------------------------API for admin get stats--------------------------------------------------------
+ngoCltr.adminStats = async (req, res) => {
+    try {
+        const [
+            totalNgo,
+            totalUsers,
+            totalTasks,
+            totalApplication,
+            pendingNgo,
+            verifiedNgo,
+            rejectedNgo,
+            totalVolunteerTasks,
+            totalFundingTasks,
+            totalOpenTasks
+        ] = await Promise.all([
+            OrganizationProfile.countDocuments(),
+            User.countDocuments(),
+            Task.countDocuments(),
+            Application.countDocuments(),
+            //----------------------------------------------------------
+            OrganizationProfile.countDocuments({ status: "Pending" }),
+            OrganizationProfile.countDocuments({ status: "Verified" }),
+            OrganizationProfile.countDocuments({ status: "Rejected" }),
+            //----------------------------------------------------------
+            Task.countDocuments({ taskType: "Volunteer" }),
+            Task.countDocuments({ taskType: "funding" }),
+            Task.countDocuments({ taskStatus: "Open" }),
+        ]);
+
+        res.status(200).json({
+            totalNgo,
+            totalUsers,
+            totalTasks,
+            totalApplication,
+            pendingNgo,
+            verifiedNgo,
+            rejectedNgo,
+            totalVolunteerTasks,
+            totalFundingTasks,
+            totalOpenTasks,
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
 module.exports = ngoCltr

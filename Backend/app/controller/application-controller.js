@@ -411,5 +411,20 @@ applicationCltr.adminGetApplications = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+//------------------------------------------APi to delete the application------------------------------------------------------------
+applicationCltr.delete = async (req, res) => {
+    const id = req.params.id
+    try {
+        const deleteApplication = await Application.findByIdAndDelete(id)
+        if (!deleteApplication) {
+            return res.status(404).json({ error: "Application not found" })
+        }
+        res.status(200).json({message:"Deleted application",deletedId:id})
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal server error" })
+
+    }
+}
 
 module.exports = applicationCltr    
