@@ -19,7 +19,7 @@ applicationCltr.apply = async (req, res) => {
             return res.status(404).json({ error: "Task not Found" })
         }
         if (String(task.taskType).toLowerCase() !== 'volunteer' || task.taskStatus !== 'Open') {
-            return res.status(400).json({ error: 'Can only apply for VLounteer task or the task is closed' })
+            return res.status(400).json({ error: 'Can only apply for Volunteer task or the task is closed' })
         }
         const existingApplication = await Application.findOne({ task: id, applicant: req.userId })
         if (existingApplication) {

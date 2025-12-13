@@ -60,12 +60,12 @@ userCltr.login = async (req, res) => {
             return res.status(400).json({ error: "Invalid credentials" })
         }
 
-        if (value.location?.lat && value.location?.long) {
-            user.location = {
-                lat: value.location.lat,
-                long: value.location.long
-            };
-        }
+        // if (value.location?.lat && value.location?.long) {
+        //     user.location = {
+        //         lat: value.location.lat,
+        //         long: value.location.long
+        //     };
+        // }
 
         user.loginCount += 1;
         await user.save();

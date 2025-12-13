@@ -37,7 +37,7 @@ app.put('/api/ngo/update', authenticateUser, authorizeUser(['NGO']), upload, ngo
 app.delete('/api/ngo/delete', authenticateUser, authorizeUser(['NGO']), ngoCltr.delete)
 app.get('/api/ngo/list', authenticateUser, authorizeUser(['Admin']), ngoCltr.list)
 app.delete('/api/ngo/admin/:id', authenticateUser, authorizeUser(['Admin']), ngoCltr.deleteByAdmin)
-app.get('/api/ngo/profile/:id', authenticateUser, authorizeUser(['Admin']), ngoCltr.getNgoById)
+app.get('/api/ngo/profile/:id', authenticateUser, authorizeUser(['Admin','Contributor']), ngoCltr.getNgoById)
 app.get('/api/admin/stats', authenticateUser, authorizeUser(['Admin']), ngoCltr.adminStats)
 //-------------------------------------------------------------------------------------------------
 //--------------------------------------API Endpoints for Task-------------------------------------
@@ -63,10 +63,11 @@ app.get('/api/application/:id', authenticateUser, authorizeUser(['Contributor', 
 app.get('/api/admin/applications', authenticateUser, authorizeUser(['Admin']), applicationCltr.adminGetApplications)
 app.delete('/api/application/:id', authenticateUser, authorizeUser(["Admin", "NGO", "Contributor"]), applicationCltr.delete)
 //----------------------------------------------------------------------------------------------------------------
-//---------------------------------------API endpoints for doantion---------------------------------------
+//---------------------------------------API endpoints for doantion-----------------------------------------------
 app.post('/api/donations/:taskId', authenticateUser, donationCltr.donate)
 app.get('/api/donation/user', authenticateUser, authorizeUser(['Contributor', 'Admin']), donationCltr.getUserDonations)
 app.get('/api/ngo/donation', authenticateUser, authorizeUser(['NGO']), donationCltr.getNgoDonations)
+//-----------------------------------------------------------------------------------------------------------------
 app.listen(port, () => {
 	console.log(`Server listening on port ${port}`)
 })

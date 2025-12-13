@@ -117,7 +117,7 @@ export default function Home() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          <Card className="rounded-2xl bg-white shadow-lg border border-red-200 p-6 text-center">
+          <Card className="rounded-2xl bg-white shadow-lg border border-red-200 p-6 text-center hover:shadow-2xl transition-all">
             <h3 className="text-xl font-bold mb-3 text-red-700">
               1. NGOs Post Tasks
             </h3>
@@ -126,7 +126,7 @@ export default function Home() {
             </p>
           </Card>
 
-          <Card className="rounded-2xl bg-white shadow-lg border border-red-200 p-6 text-center">
+          <Card className="rounded-2xl bg-white shadow-lg border border-red-200 p-6 text-center hover:shadow-2xl transition-all">
             <h3 className="text-xl font-bold mb-3 text-red-700">
               2. Contributors Join
             </h3>
@@ -135,7 +135,7 @@ export default function Home() {
             </p>
           </Card>
 
-          <Card className="rounded-2xl bg-white shadow-lg border border-red-200 p-6 text-center">
+          <Card className="rounded-2xl bg-white shadow-lg border border-red-200 p-6 text-center hover:shadow-2xl transition-all">
             <h3 className="text-xl font-bold mb-3 text-red-700">
               3. Impact Happens
             </h3>

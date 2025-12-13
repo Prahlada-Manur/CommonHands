@@ -2,6 +2,9 @@ import { Link } from "react-router-dom";
 import logo from "../assets/newlogo.png";
 import userContext from "../Context/userContext";
 import { useContext } from "react";
+import { useDispatch } from "react-redux";
+import { resetNgoData } from "../Slices/NgoSlice";
+import { resetAdminData } from "../Slices/AdminSlice";
 
 import { ChevronDown } from "lucide-react";
 
@@ -15,10 +18,14 @@ import {
 export default function NavBar() {
   const { handleLogout, isLoggedIn, user, ngoProfile } =
     useContext(userContext);
+  const dispatch = useDispatch();
 
   const getVerifiedNgoLinks = () => [
     { label: "Profile", path: "/ngoprofile" },
-    { label: "Tasks", path: "/tasks" },
+    { label: "Dashboard", path: "/ngo/dashboard" },
+    { label: "Tasks", path: "/ngo/tasks" },
+    { label: "Applications", path: "/ngo/application" },
+    { label: "Donations", path: "/ngo/donation" },
   ];
 
   const getContributorLinks = () => [
@@ -61,7 +68,7 @@ export default function NavBar() {
           Home
         </Link>
 
-        {/* IF NOT LOGGED IN */}
+        {/* NOT LOGGED IN */}
         {!isLoggedIn && !localStorage.getItem("token") ? (
           <>
             <Link className="text-base md:text-lg hover:text-black" to="/login">
@@ -77,16 +84,6 @@ export default function NavBar() {
           </>
         ) : (
           <>
-            {/* LOGOUT */}
-            <button
-              onClick={() => {
-                handleLogout()
-              }}
-              className="text-base md:text-lg hover:text-black"
-            >
-              Logout
-            </button>
-
             {/* ADMIN MENU */}
             {user?.role === "Admin" && (
               <DropdownMenu>
@@ -97,7 +94,7 @@ export default function NavBar() {
                   </button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="start" className="w-44">
+                <DropdownMenuContent align="end" className="w-44">
                   <DropdownMenuItem asChild>
                     <Link to="/admin/dashboard">Overview</Link>
                   </DropdownMenuItem>
@@ -144,6 +141,18 @@ export default function NavBar() {
                   {item.label}
                 </Link>
               ))}
+
+            {/* LOGOUT — ALWAYS LAST */}
+            <button
+              onClick={() => {
+                handleLogout();
+                dispatch(resetNgoData());
+                dispatch(resetAdminData());
+              }}
+              className="text-base md:text-lg hover:text-black"
+            >
+              Logout
+            </button>
           </>
         )}
       </div>

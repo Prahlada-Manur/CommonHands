@@ -247,10 +247,6 @@ ngoCltr.list = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
-
-
-
-
 //---------------------------------API to Delete NGO by Admin-----------------------------------------------------------------
 ngoCltr.deleteByAdmin = async (req, res) => {
     try {

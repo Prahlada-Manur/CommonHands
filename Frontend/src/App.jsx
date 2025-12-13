@@ -15,6 +15,10 @@ import AdminApplications from "./Pages/Admin/AdminApplications";
 import AdminTasks from "./Pages/Admin/AdminTasks";
 import AdminNgo from "./Pages/Admin/AdminNgo";
 import AdminUsers from "./Pages/Admin/AdminUsers";
+import NgoTasks from "./Pages/NGO/NgoTasks";
+import NgoDashboard from "./Pages/NGO/NgoDashboard";
+import NgoApplication from "./Pages/NGO/NgoApplication";
+import NgoDonations from "./Pages/NGO/NgoDonations";
 //-------------------------------------------------------------------------------------------------------------------------
 export default function App() {
   return (
@@ -31,7 +35,6 @@ export default function App() {
           <Route path="/uploadDoc" element={<UploadDoc />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/registerNgostep2" element={<RegisterNgoTwo />} />
-          <Route path="/ngoprofile" element={<NgoLanding />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/ngo/status" element={<NgoStatus />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -39,6 +42,11 @@ export default function App() {
           <Route path="/admin/tasks" element={<AdminTasks />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/applications" element={<AdminApplications />} />
+          <Route path="/ngoprofile" element={<NgoLanding />} />
+          <Route path="/ngo/tasks" element={<NgoTasks />} />
+          <Route path="/ngo/dashboard" element={<NgoDashboard />} />
+          <Route path="/ngo/application" element={<NgoApplication />} />
+          <Route path="/ngo/donation" element={<NgoDonations />} />
         </Routes>
       </main>
     </div>

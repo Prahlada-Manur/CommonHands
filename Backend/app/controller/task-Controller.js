@@ -47,9 +47,16 @@ taskCltr.createTask = async (req, res) => {
 //---------------------------------API to get all the task posted by one ngo--------------------------------
 taskCltr.getTaskByNgo = async (req, res) => {
     try {
-        const { page = 1, limit = 3 } = req.query
+        const { type = "All", page = 1, limit = 3, status = "All" } = req.query
         const skip = (Number(page) - 1) * Number(limit)
-        const tasks = await Task.find({ ngo: req.ngoId }).sort({ createdAt: -1 }).skip(skip)
+        const query = { ngo: req.ngoId }
+        if (status && status !== "All") {
+            query.taskStatus = status
+        }
+        if (type && type !== "All") {
+            query.taskType = type
+        }
+        const tasks = await Task.find(query).sort({ createdAt: -1 }).skip(skip)
             .limit(Number(limit))
             .populate('ngo', ['ngoName', 'contactEmail'])
             .populate('createdBy', ['email', 'firstName', 'lastName', 'mobileNumber'])
@@ -258,15 +265,13 @@ taskCltr.getAdminTasks = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
-
-
 //-------------------------------APi for ngo Dashboard----------------------------------------------------------
 taskCltr.overview = async (req, res) => {
     try {
         const { status = 'All', page = 1, limit = 5 } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
 
-        const matchNgo = { ngo: new mongoose.Types.ObjectId(req.ngoId) };
+        const matchNgo = { ngo: new mongoose.Types.ObjectId(req.ngoId) }; 
         if (status && status !== 'All') {
             matchNgo.taskStatus = status; // 'Open'||'Completed'
         }
@@ -277,7 +282,6 @@ taskCltr.overview = async (req, res) => {
             { $skip: skip },
             { $limit: Number(limit) },
 
-            // 🔹 Link volunteer applications
             {
                 $lookup: {
                     from: 'applications',
@@ -287,7 +291,6 @@ taskCltr.overview = async (req, res) => {
                 }
             },
 
-            // 🔹 Link applicant user details
             {
                 $lookup: {
                     from: 'users',
@@ -297,7 +300,6 @@ taskCltr.overview = async (req, res) => {
                 }
             },
 
-            // 🔹 Link related donations/transactions
             {
                 $lookup: {
                     from: 'transactions',
@@ -307,7 +309,6 @@ taskCltr.overview = async (req, res) => {
                 }
             },
 
-            // 🔹 Include donor user details
             {
                 $lookup: {
                     from: 'users',
@@ -317,7 +318,6 @@ taskCltr.overview = async (req, res) => {
                 }
             },
 
-            // 🔹 Final projection
             {
                 $project: {
                     title: 1,
@@ -329,7 +329,6 @@ taskCltr.overview = async (req, res) => {
                     currentFund: 1,
                     createdAt: 1,
 
-                    // Volunteer details
                     applicationCount: { $size: "$applications" },
                     applicants: {
                         $map: {
@@ -344,7 +343,6 @@ taskCltr.overview = async (req, res) => {
                         }
                     },
 
-                    // Donation stats for funding tasks
                     totalDonationsCount: { $size: "$donations" },
                     totalFundsRaised: {
                         $sum: "$donations.transactionInfo.amount"
@@ -392,9 +390,9 @@ taskCltr.updateTaskStatus = async (req, res) => {
             return res.status(400).json({ error: "Task ID not provided" });
         }
         const updatedTask = await Task.findOneAndUpdate(
-            { _id: taskId, ngo: req.ngoId, taskStatus: "Open" },   
-            { taskStatus: "Completed" },                           
-            { new: true }                                         
+            { _id: taskId, ngo: req.ngoId, taskStatus: "Open" },
+            { taskStatus: "Completed" },
+            { new: true }
         );
         if (!updatedTask) {
             return res.status(400).json({
@@ -412,10 +410,5 @@ taskCltr.updateTaskStatus = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
-
-
-
-
-
 //--------------------------------------------------------------------------------------------------------------------
 module.exports = taskCltr

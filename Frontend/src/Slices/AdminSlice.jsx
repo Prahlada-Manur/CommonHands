@@ -193,7 +193,7 @@ const adminSlice = createSlice({
     assignEditId: (state, action) => {
       state.editId = action.payload;
     },
-    resetData: (state) => {
+    resetAdminData: (state) => {
       state.data = [];
     },
   },
@@ -320,4 +320,4 @@ const adminSlice = createSlice({
   },
 });
 export default adminSlice.reducer;
-export const { assignEditId,resetData } = adminSlice.actions;
+export const { assignEditId, resetAdminData } = adminSlice.actions;
